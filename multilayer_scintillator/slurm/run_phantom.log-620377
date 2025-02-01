@@ -1,0 +1,11 @@
+No energy distribution found
+
+### Collecting Energy Distribution Data
+    0Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1986, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 678, in generate_energy_distribution_data
+    wvl_dict, xy_dict, _, _ = self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 321, in read_output
+    assert False
+AssertionError

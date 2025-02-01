@@ -1,0 +1,383 @@
+Energy distribution loaded
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1951, in <module>
+    simulation.cmake()
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 181, in cmake
+    os.chdir(self.G4directory + "/build")
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank25.mac'
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank30.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank1.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank15.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank6.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank8.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank5.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank13.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank22.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank19.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank28.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank10.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank20.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank43.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank11.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank27.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank45.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank18.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank12.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank38.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank16.mac'
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank41.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank9.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank17.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank23.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank21.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank3.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank32.mac'
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank7.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank4.mac'
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank33.mac'
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank14.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank2.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank26.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank31.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank35.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank34.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank47.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank39.mac'
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank24.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank42.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank29.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank44.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank36.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank46.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank40.mac'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1966, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 657, in generate_energy_distribution_data
+    self.make_simulation_macro(Nruns_per_energy, source_energy=energy_per_proc[nd], source_xy='center')
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 197, in make_simulation_macro
+    with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main/build/run_detector_rank37.mac'

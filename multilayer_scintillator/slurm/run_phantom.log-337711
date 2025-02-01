@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/home/minseokhwan/multilayer_scintillator/run_phantom_geant4.py", line 1527, in <module>
+    simulation = geant4(G4directory = "/home/gridsan/smin/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/multilayer_scintillator/run_phantom_geant4.py", line 128, in __init__
+    plt.savefig(directory + "/plots/" + identifier + "_xraySrc.png", dpi=300)
+  File "/home/minseokhwan/.local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 1119, in savefig
+    res = fig.savefig(*args, **kwargs)  # type: ignore[func-returns-value]
+  File "/home/minseokhwan/.local/lib/python3.9/site-packages/matplotlib/figure.py", line 3390, in savefig
+    self.canvas.print_figure(fname, **kwargs)
+  File "/home/minseokhwan/.local/lib/python3.9/site-packages/matplotlib/backend_bases.py", line 2187, in print_figure
+    result = print_method(
+  File "/home/minseokhwan/.local/lib/python3.9/site-packages/matplotlib/backend_bases.py", line 2043, in <lambda>
+    print_method = functools.wraps(meth)(lambda *args, **kwargs: meth(
+  File "/home/minseokhwan/.local/lib/python3.9/site-packages/matplotlib/backends/backend_agg.py", line 497, in print_png
+    self._print_pil(filename_or_obj, "png", pil_kwargs, metadata)
+  File "/home/minseokhwan/.local/lib/python3.9/site-packages/matplotlib/backends/backend_agg.py", line 446, in _print_pil
+    mpl.image.imsave(
+  File "/home/minseokhwan/.local/lib/python3.9/site-packages/matplotlib/image.py", line 1656, in imsave
+    image.save(fname, **pil_kwargs)
+  File "/opt/anaconda3/lib/python3.9/site-packages/PIL/Image.py", line 2317, in save
+    fp = builtins.open(filename, "w+b")
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/multilayer_scintillator/plots/ZnSe_Gadox_NaI_67keV_100um_xraySrc.png'

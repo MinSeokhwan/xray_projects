@@ -1,0 +1,97 @@
+-rwxr-xr-x 1 minseokhwan minseokhwan 7696  1월 23 11:09 /home/minseokhwan/xray_projects/geant4/geant4-v11.2.2-install/share/Geant4/geant4make/geant4make.sh
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 27, in <module>
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'
+    import util.read_txt as txt
+ModuleNotFoundError: No module named 'util'

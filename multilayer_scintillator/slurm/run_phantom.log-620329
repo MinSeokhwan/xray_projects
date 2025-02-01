@@ -1,0 +1,18 @@
+No energy distribution found
+
+### Collecting Energy Distribution Data
+    0srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-node2: error: *** STEP 620329.0 ON node2 CANCELLED AT 2025-01-31T11:42:16 ***
+slurmstepd-node2: error: *** JOB 620329 ON node2 CANCELLED AT 2025-01-31T11:42:16 ***
+
+===================================================================================
+=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
+=   RANK 0 PID 77483 RUNNING AT node2
+=   KILLED BY SIGNAL: 15 (Terminated)
+===================================================================================
+
+===================================================================================
+=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
+=   RANK 1 PID 77484 RUNNING AT node2
+=   KILLED BY SIGNAL: 15 (Terminated)
+===================================================================================

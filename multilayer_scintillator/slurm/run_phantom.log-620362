@@ -1,0 +1,6 @@
+No energy distribution found
+
+### Collecting Energy Distribution Data
+    0srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-node1: error: *** STEP 620362.0 ON node1 CANCELLED AT 2025-02-01T11:46:31 ***
+slurmstepd-node1: error: *** JOB 620362 ON node1 CANCELLED AT 2025-02-01T11:46:31 ***

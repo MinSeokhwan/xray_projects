@@ -1,0 +1,95 @@
+No energy distribution found
+
+### Collecting Energy Distribution Data
+    0Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 303, in read_output
+    wvl_list = np.array(photons["fWlen"].array())[scint_photon_ind]
+IndexError: arrays used as indices must be of integer (or boolean) type
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1970, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 662, in generate_energy_distribution_data
+    wvl_dict, xy_dict, _, _ = self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 306, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 303, in read_output
+    wvl_list = np.array(photons["fWlen"].array())[scint_photon_ind]
+IndexError: arrays used as indices must be of integer (or boolean) type
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1970, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 662, in generate_energy_distribution_data
+    wvl_dict, xy_dict, _, _ = self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 306, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 303, in read_output
+    wvl_list = np.array(photons["fWlen"].array())[scint_photon_ind]
+IndexError: arrays used as indices must be of integer (or boolean) type
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1970, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 662, in generate_energy_distribution_data
+    wvl_dict, xy_dict, _, _ = self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 306, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 303, in read_output
+    wvl_list = np.array(photons["fWlen"].array())[scint_photon_ind]
+IndexError: arrays used as indices must be of integer (or boolean) type
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1970, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 662, in generate_energy_distribution_data
+    wvl_dict, xy_dict, _, _ = self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 306, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 303, in read_output
+    wvl_list = np.array(photons["fWlen"].array())[scint_photon_ind]
+IndexError: arrays used as indices must be of integer (or boolean) type
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1970, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 662, in generate_energy_distribution_data
+    wvl_dict, xy_dict, _, _ = self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 306, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 303, in read_output
+    wvl_list = np.array(photons["fWlen"].array())[scint_photon_ind]
+IndexError: arrays used as indices must be of integer (or boolean) type
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 1970, in <module>
+    simulation.generate_energy_distribution_data(Nruns_per_energy=1000) # originally 10000
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 662, in generate_energy_distribution_data
+    wvl_dict, xy_dict, _, _ = self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/multilayer_scintillator/run_phantom_geant4.py", line 306, in read_output
+    assert False
+AssertionError
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-node1: error: *** JOB 615045 ON node1 CANCELLED AT 2025-01-24T16:37:15 ***

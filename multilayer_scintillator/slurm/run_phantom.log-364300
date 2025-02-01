@@ -1,0 +1,11 @@
+..: 1: cmake: not found
+make: /usr/bin/cmake: Command not found
+make: *** [Makefile:460: cmake_check_build_system] Error 127
+
+### Collecting Energy Distribution Data
+    0./NS: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required by /home/minseokhwan/geant4/geant4-v11.2.2-install/lib/libG4run.so)
+./NS: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required by /home/minseokhwan/geant4/geant4-v11.2.2-install/lib/libG4global.so)
+./NS: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required by /home/minseokhwan/geant4/geant4-v11.2.2-install/lib/libG4ptl.so.2)
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-node2: error: *** STEP 364300.0 ON node2 CANCELLED AT 2024-08-27T11:39:21 ***
+slurmstepd-node2: error: *** JOB 364300 ON node2 CANCELLED AT 2024-08-27T11:39:21 ***
