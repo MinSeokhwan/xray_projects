@@ -1,0 +1,464 @@
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 336, in <module>
+    os.mkdir(directory + "/data/" + identifier)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/xray_scattering_discrimination/data/YAGCe_150keV'
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+Traceback (most recent call last):
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+Traceback (most recent call last):
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    with open(filename + '.txt', 'r') as f:
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+Traceback (most recent call last):
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    with open(filename + '.txt', 'r') as f:
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 338, in <module>
+    simulation = geant4(G4directory = "/home/minseokhwan/xray_projects/geant4/G4_Nanophotonic_Scintillator-main",
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 70, in __init__
+    self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
+  File "/home/minseokhwan/xray_projects/util/xray_spectrum_generator.py", line 68, in get_spectrum
+    mu_raw = txt.read_txt(directory + '/data/linAttCoeff' + target_material)
+  File "/home/minseokhwan/xray_projects/util/read_txt.py", line 7, in read_txt
+    with open(filename + '.txt', 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/util/data/linAttCoeffW.txt'

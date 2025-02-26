@@ -1,0 +1,194 @@
+
+### Collecting Simulation Data
+    0Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    assert False
+AssertionError
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    assert False
+AssertionError
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    assert False
+AssertionError
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+AssertionError
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 364, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 326, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 310, in read_output
+    assert False
+AssertionError

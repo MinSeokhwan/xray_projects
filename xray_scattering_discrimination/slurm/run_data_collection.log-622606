@@ -1,0 +1,15 @@
+
+### Collecting Simulation Data
+    0Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=42)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 206, in read_output
+    with np.load(directory + "/data/" + self.identifier + "/geant4_data_" + str(comm.rank + self.rank_start) + ".npz") as data:
+  File "/home/minseokhwan/.local/lib/python3.9/site-packages/numpy/lib/npyio.py", line 427, in load
+    fid = stack.enter_context(open(os_fspath(file), "rb"))
+FileNotFoundError: [Errno 2] No such file or directory: '/home/minseokhwan/xray_projects/xray_scattering_discrimination/data/YAGCe_150keV/geant4_data_3.npz'
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-node2: error: *** STEP 622606.0 ON node2 CANCELLED AT 2025-02-12T21:12:31 ***
+slurmstepd-node2: error: *** JOB 622606 ON node2 CANCELLED AT 2025-02-12T21:12:31 ***

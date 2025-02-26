@@ -26,10 +26,16 @@ NSRunAction::NSRunAction()
     man->CreateNtuple("Photons", "Photons"); // photons that hit the detector
     man->CreateNtupleIColumn("fEvent"); // event ID
     man->CreateNtupleDColumn("fWlen"); // wavelength
+    man->CreateNtupleSColumn("particleType");
     man->CreateNtupleSColumn("fCreatorProcess");
+    man->CreateNtupleDColumn("fX"); // x position
+    man->CreateNtupleDColumn("fY"); // y position
+    man->CreateNtupleDColumn("fZ"); // z position
     man->CreateNtupleDColumn("pX"); // x momentum
     man->CreateNtupleDColumn("pY"); // y momentum
     man->CreateNtupleDColumn("pZ"); // z momentum
+    man->CreateNtupleDColumn("vX"); // vertex x position
+    man->CreateNtupleDColumn("vY"); // vertex y position
     man->CreateNtupleDColumn("vZ"); // vertex z position
     man->FinishNtuple(0);
 
@@ -58,20 +64,12 @@ NSRunAction::NSRunAction()
     man->CreateNtupleDColumn("fY"); // initial xray y-coordinate
     man->FinishNtuple(2);
     
-    man->CreateNtuple("Debug", "Debug");
+    man->CreateNtuple("Process", "Process");
     man->CreateNtupleIColumn("fEvent");
-    man->CreateNtupleDColumn("vZ");
-    man->CreateNtupleDColumn("wlen");
-    man->CreateNtupleSColumn("process");
+    man->CreateNtupleIColumn("Rayleigh");
+    man->CreateNtupleIColumn("Photoelectric");
+    man->CreateNtupleIColumn("Compton");
     man->FinishNtuple(3);
-    
-    man->CreateNtuple("Debug2", "Debug2");
-    man->CreateNtupleIColumn("fEvent");
-    man->CreateNtupleDColumn("mZ");
-    man->CreateNtupleDColumn("wlen");
-    man->CreateNtupleSColumn("preVol");
-    man->CreateNtupleSColumn("postVol");
-    man->FinishNtuple(4);
 
     root_file_name = "output.root";
     fMessenger = new G4GenericMessenger(this, "/system/", "System params");

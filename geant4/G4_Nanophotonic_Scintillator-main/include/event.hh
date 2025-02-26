@@ -16,10 +16,20 @@ public:
     virtual void BeginOfEventAction(const G4Event*);
     virtual void EndOfEventAction(const G4Event*);
     
-    void AddEdep(G4double edep) { fEdep += edep; } 
+    G4int GetRayleighCount() const { return fRayleighCount; }
+    G4int GetComptonCount() const { return fComptonCount; }
+    G4int GetPhotoelectricCount() const { return fPhotoelectricCount; }
+    
+    void IncrementRayleighCount() { ++fRayleighCount; }
+    void IncrementPhotoelectricCount() { ++fPhotoelectricCount; }
+    void IncrementComptonCount() { ++fComptonCount; }
     
 private:
-    G4double fEdep;
+    G4int fComptonCount;
+    G4int fRayleighCount;
+    G4int fPhotoelectricCount;
 };
+
+extern thread_local NSEventAction* globNSEventAction;
 
 #endif

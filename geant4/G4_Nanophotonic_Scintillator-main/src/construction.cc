@@ -8,11 +8,11 @@
 NSDetectorConstruction::NSDetectorConstruction()
 {
     // World dimensions
-    xWorld = 1.5; //cm
-    yWorld = 1.5; //cm
-    zWorld = 0.7; //cm
-    gapSampleScint = 0.1; //cm
-    gapScintDet = 0.1; //cm
+    xWorld = 100.; //cm
+    yWorld = 100.; //cm
+    zWorld = 1.01204; //cm
+    gapSampleScint = 0.0; //cm
+    gapScintDet = 0.001; //cm
 
     // The overlaps between the detectors should be checked each time the geometry is changed
     // This is set to false by default to avoid performing this verification at each run
@@ -20,22 +20,23 @@ NSDetectorConstruction::NSDetectorConstruction()
 
     // Construct an array sensitive detectors
     constructDetectors = true;
-    xDet = 12800.; //um
-    yDet = 12800.; //um
+    constructTopDetector = true;
+    xDet = 1000000.; //um
+    yDet = 1000000.; //um
     nDetX = 1;
     nDetY = 1;
     detectorDepth = 0.1; //um
 
     // Specify structure type
-    nLayers = 3;
-    xScint = 1.5; //cm
-    yScint = 1.5; //cm
-    scintillatorThickness1 = 1.0; // from top (side of incidence) to bottom
-    scintillatorThickness2 = 1.0; //mm
-    scintillatorThickness3 = 1.0; //mm
+    nLayers = 1;
+    xScint = 100.; //cm
+    yScint = 100.; //cm
+    scintillatorThickness1 = 10.; // from top (side of incidence) to bottom
+    scintillatorThickness2 = 0.1; //mm
+    scintillatorThickness3 = 0.1; //mm
     scintillatorMaterial1 = 1; // 1: YAGCe  2: ZnSeTe  3: LYSOCe  4: CsITl  5: GSOCe  6: NaITl  7: GadoxTb
-    scintillatorMaterial2 = 2;
-    scintillatorMaterial3 = 3;
+    scintillatorMaterial2 = 7;
+    scintillatorMaterial3 = 6;
     angleFilter = false;
     angleFilterStart = 101; // 101: SiO2,  102: TiO2
     
@@ -63,6 +64,7 @@ NSDetectorConstruction::NSDetectorConstruction()
     fMessenger->DeclareProperty("gapScintDet", gapScintDet, "Gap between the scintillator and the detector");
     
     fMessenger->DeclareProperty("constructDetectors", constructDetectors, "Construct detector plane at the end of the structure and not in the materials themselves");
+    fMessenger->DeclareProperty("constructTopDetector", constructTopDetector, "Construct a topside detector in addition to the bottom one");
     fMessenger->DeclareProperty("detectorDepth", detectorDepth, "Depth of the detectors");
     fMessenger->DeclareProperty("xDet", xDet, "Detector x length");
     fMessenger->DeclareProperty("yDet", yDet, "Detector y length");
@@ -128,7 +130,31 @@ void DefineScintillator(G4MaterialPropertiesTable* mpt, G4Material* material, co
     material->GetIonisation()->SetBirksConstant(0.126 * mm / MeV);
 }
 
-G4MaterialPropertiesTable* DefineNonScintillatingMaterial(G4Material* material, G4int nComponents, G4PhysicsOrderedFreeVector* rindex, G4PhysicsOrderedFreeVector* absLength)
+void ReadDataFile(const char* filename, G4PhysicsOrderedFreeVector* vec)
+{
+    std::ifstream dataFile;
+    dataFile.open(filename);
+    while(1)
+    {
+      	G4double col1, col2;
+      	dataFile >> col1 >> col2;
+        if(std::strstr(filename, "rindex") != nullptr)
+        {
+      	    vec->InsertValues(wavelenthToeV(col1*nm), col2);
+        } else if(std::strstr(filename, "emission") != nullptr)
+        {
+            vec->InsertValues(wavelenthToeV(col1*nm), col2);
+        } else if(std::strstr(filename, "linAttCoeff") != nullptr)
+        {
+            vec->InsertValues(col1*keV, 1./col2*cm);
+        }
+        if(dataFile.eof())
+      	    break;
+    }
+    dataFile.close();
+}
+
+G4MaterialPropertiesTable* DefineNonScintillatingMaterial(G4Material* material, const G4int numComponents, G4PhysicsOrderedFreeVector* rindex, G4PhysicsOrderedFreeVector* absLength)
 {
     G4MaterialPropertiesTable *mpt = new G4MaterialPropertiesTable();
     mpt->AddProperty("RINDEX", rindex);
@@ -141,7 +167,7 @@ void NSDetectorConstruction::DefineOpticalSurface(G4MaterialPropertiesTable* mpt
 {
     opticalSurface->SetType(dielectric_dielectric);
     opticalSurface->SetFinish(polished);
-    //opticalSurface->SetMaterialPropertiesTable(mpt);
+    opticalSurface->SetMaterialPropertiesTable(mpt);
 }
 
 void NSDetectorConstruction::DefineElements(G4NistManager *nist)
@@ -186,17 +212,7 @@ void NSDetectorConstruction::DefineWorld(G4NistManager *nist)
     worldMat = nist->FindOrBuildMaterial("G4_AIR");
     
     rindexWorld = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexDatafile >> wlen >> rindex;
-      	if(rindexDatafile.eof())
-      	    break;
-      	rindexWorld->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexWorld);
     
     G4MaterialPropertiesTable *mptWorld = new G4MaterialPropertiesTable();
     mptWorld->AddProperty("RINDEX", rindexWorld);
@@ -207,6 +223,24 @@ void NSDetectorConstruction::DefineWorld(G4NistManager *nist)
     DefineOpticalSurface(mptWorld, opticalSurfaceWorld, "interfaceSurfaceWorld");  
 }
 
+void NSDetectorConstruction::DefineDetector(G4NistManager *nist)
+{
+    detMat = new G4Material("detMat", 2.328*g/cm3, 1);
+    detMat->AddElement(Si, 1);
+
+    rindexDet = new G4PhysicsOrderedFreeVector();
+    ReadDataFile("rindexAir.dat", rindexDet);
+    
+    absLengthDet = new G4PhysicsOrderedFreeVector();
+    ReadDataFile("linAttCoeffDet.dat", absLengthDet);
+    
+    G4MaterialPropertiesTable *mptDet = DefineNonScintillatingMaterial(detMat, 2, rindexDet, absLengthDet);
+
+    // // Creating the optical surface properties
+    opticalSurfaceDet = new G4OpticalSurface("interfaceSurfaceDet");
+    DefineOpticalSurface(mptDet, opticalSurfaceDet, "interfaceSurfaceDet");  
+}
+
 void NSDetectorConstruction::DefineYAGCe()
 {
     YAGCe = new G4Material("YAGCe", 4.55*g/cm3, 3);
@@ -215,46 +249,16 @@ void NSDetectorConstruction::DefineYAGCe()
     YAGCe->AddElement(O, 12);
 
     fraction = new G4PhysicsOrderedFreeVector();
-    std::ifstream fractionDatafile;
-    fractionDatafile.open("emissionYAGCe.dat");
-    while(1)
-    {
-	G4double wlen, emission;
-	fractionDatafile >> wlen >> emission;
-	if(fractionDatafile.eof())
-	    break;
-	fraction->InsertValues(wavelenthToeV(wlen*nm), emission);
-    }
-    fractionDatafile.close();
+    ReadDataFile("emissionYAGCe.dat", fraction);
     
     rindexYAGCe = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexYAG.dat");
-    while(1)
-    {
-	G4double wlen, rindex;
-	rindexDatafile >> wlen >> rindex;
-	if(rindexDatafile.eof())
-	    break;
-	rindexYAGCe->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexYAG.dat", rindexYAGCe);
     
     absLengthYAGCe = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffDatafile;
-    linAttCoeffDatafile.open("linAttCoeffYAGCe.dat");
-    while(1)
-    {
-	G4double energy, linAttCoeff;
-	linAttCoeffDatafile >> energy >> linAttCoeff;
-	if(linAttCoeffDatafile.eof())
-	    break;
-	absLengthYAGCe->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffDatafile.close();
+    ReadDataFile("linAttCoeffYAGCe.dat", absLengthYAGCe);
     
     G4MaterialPropertiesTable* mptYAGCe = new G4MaterialPropertiesTable();
-    DefineScintillator(mptYAGCe, YAGCe, 3, rindexYAGCe, fraction, absLengthYAGCe, 35./keV, 1., 70.*ns);
+    DefineScintillator(mptYAGCe, YAGCe, 3, rindexYAGCe, fraction, absLengthYAGCe, 35./keV, 1., 70.*ns); //35
 
     // // Creating the optical surface properties
     opticalSurfaceYAGCe = new G4OpticalSurface("interfaceSurfaceYAGCe");
@@ -268,43 +272,13 @@ void NSDetectorConstruction::DefineZnSeTe()
     ZnSeTe->AddElement(Se, 1);
     
     fraction = new G4PhysicsOrderedFreeVector();
-    std::ifstream fractionDatafile;
-    fractionDatafile.open("emissionZnSeTe.dat");
-    while(1)
-    {
-	G4double wlen, emission;
-	fractionDatafile >> wlen >> emission;
-	if(fractionDatafile.eof())
-	    break;
-	fraction->InsertValues(wavelenthToeV(wlen*nm), emission);
-    }
-    fractionDatafile.close();
+    ReadDataFile("emissionZnSeTe.dat", fraction);
     
     rindexZnSeTe = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexZnSe.dat");
-    while(1)
-    {
-	G4double wlen, rindex;
-	rindexDatafile >> wlen >> rindex;
-	if(rindexDatafile.eof())
-	    break;
-	rindexZnSeTe->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexZnSe.dat", rindexZnSeTe);
     
     absLengthZnSeTe = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffDatafile;
-    linAttCoeffDatafile.open("linAttCoeffZnSeTe.dat");
-    while(1)
-    {
-	G4double energy, linAttCoeff;
-	linAttCoeffDatafile >> energy >> linAttCoeff;
-	if(linAttCoeffDatafile.eof())
-	    break;
-	absLengthZnSeTe->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffDatafile.close();
+    ReadDataFile("linAttCoeffZnSeTe.dat", absLengthZnSeTe);
     
     G4MaterialPropertiesTable* mptZnSeTe = new G4MaterialPropertiesTable();
     DefineScintillator(mptZnSeTe, ZnSeTe, 2, rindexZnSeTe, fraction, absLengthZnSeTe, 55./keV, 1., 50000.*ns);
@@ -321,43 +295,13 @@ void NSDetectorConstruction::DefineBaF2()
     BaF2->AddElement(F, 2);
     
     fraction = new G4PhysicsOrderedFreeVector();
-    std::ifstream fractionDatafile;
-    fractionDatafile.open("emissionBaF2.dat");
-    while(1)
-    {
-	G4double wlen, emission;
-	fractionDatafile >> wlen >> emission;
-	if(fractionDatafile.eof())
-	    break;
-	fraction->InsertValues(wavelenthToeV(wlen*nm), emission);
-    }
-    fractionDatafile.close();
+    ReadDataFile("emissionBaF2.dat", fraction);
     
     rindexBaF2 = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexBaF2.dat");
-    while(1)
-    {
-	G4double wlen, rindex;
-	rindexDatafile >> wlen >> rindex;
-	if(rindexDatafile.eof())
-	    break;
-	rindexBaF2->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexBaF2.dat", rindexBaF2);
     
     absLengthBaF2 = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffDatafile;
-    linAttCoeffDatafile.open("linAttCoeffBaF2.dat");
-    while(1)
-    {
-	G4double energy, linAttCoeff;
-	linAttCoeffDatafile >> energy >> linAttCoeff;
-	if(linAttCoeffDatafile.eof())
-	    break;
-	absLengthBaF2->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffDatafile.close();
+    ReadDataFile("linAttCoeffBaF2.dat", absLengthBaF2);
     
     G4MaterialPropertiesTable* mptBaF2 = new G4MaterialPropertiesTable();
     DefineScintillator(mptBaF2, BaF2, 2, rindexBaF2, fraction, absLengthBaF2, 10./keV, 1., 630.*ns);
@@ -374,43 +318,13 @@ void NSDetectorConstruction::DefineLaCl3Ce()
     LaCl3Ce->AddElement(Cl, 3);
     
     fraction = new G4PhysicsOrderedFreeVector();
-    std::ifstream fractionDatafile;
-    fractionDatafile.open("emissionLaCl3Ce.dat");
-    while(1)
-    {
-	G4double wlen, emission;
-	fractionDatafile >> wlen >> emission;
-	if(fractionDatafile.eof())
-	    break;
-	fraction->InsertValues(wavelenthToeV(wlen*nm), emission);
-    }
-    fractionDatafile.close();
+    ReadDataFile("emissionLaCl3Ce.dat", fraction);
     
     rindexLaCl3Ce = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexLaCl3.dat");
-    while(1)
-    {
-	G4double wlen, rindex;
-	rindexDatafile >> wlen >> rindex;
-	if(rindexDatafile.eof())
-	    break;
-	rindexLaCl3Ce->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexLaCl3.dat", rindexLaCl3Ce);
     
     absLengthLaCl3Ce = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffDatafile;
-    linAttCoeffDatafile.open("linAttCoeffLaCl3Ce.dat");
-    while(1)
-    {
-	G4double energy, linAttCoeff;
-	linAttCoeffDatafile >> energy >> linAttCoeff;
-	if(linAttCoeffDatafile.eof())
-	    break;
-	absLengthLaCl3Ce->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffDatafile.close();
+    ReadDataFile("linAttCoeffLaCl3Ce.dat", absLengthLaCl3Ce);
     
     G4MaterialPropertiesTable* mptLaCl3Ce = new G4MaterialPropertiesTable();
     DefineScintillator(mptLaCl3Ce, LaCl3Ce, 2, rindexLaCl3Ce, fraction, absLengthLaCl3Ce, 49./keV, 1., 28.*ns);
@@ -429,43 +343,13 @@ void NSDetectorConstruction::DefineLYSOCe()
     LYSOCe->AddElement(O, 50);
     
     fraction = new G4PhysicsOrderedFreeVector();
-    std::ifstream fractionDatafile;
-    fractionDatafile.open("emissionLYSOCe.dat");
-    while(1)
-    {
-	G4double wlen, emission;
-	fractionDatafile >> wlen >> emission;
-	if(fractionDatafile.eof())
-	    break;
-	fraction->InsertValues(wavelenthToeV(wlen*nm), emission);
-    }
-    fractionDatafile.close();
+    ReadDataFile("emissionLYSOCe.dat", fraction);
     
     rindexLYSOCe = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexLYSO.dat");
-    while(1)
-    {
-	G4double wlen, rindex;
-	rindexDatafile >> wlen >> rindex;
-	if(rindexDatafile.eof())
-	    break;
-	rindexLYSOCe->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexLYSO.dat", rindexLYSOCe);
     
     absLengthLYSOCe = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffDatafile;
-    linAttCoeffDatafile.open("linAttCoeffLYSOCe.dat");
-    while(1)
-    {
-	G4double energy, linAttCoeff;
-	linAttCoeffDatafile >> energy >> linAttCoeff;
-	if(linAttCoeffDatafile.eof())
-	    break;
-	absLengthLYSOCe->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffDatafile.close();
+    ReadDataFile("linAttCoeffLYSOCe.dat", absLengthLYSOCe);
     
     G4MaterialPropertiesTable* mptLYSOCe = new G4MaterialPropertiesTable();
     DefineScintillator(mptLYSOCe, LYSOCe, 4, rindexLYSOCe, fraction, absLengthLYSOCe, 25./keV, 1., 40.*ns);
@@ -482,43 +366,13 @@ void NSDetectorConstruction::DefineCsITl()
     CsITl->AddElement(I, 1);
     
     fraction = new G4PhysicsOrderedFreeVector();
-    std::ifstream fractionDatafile;
-    fractionDatafile.open("emissionCsITl.dat");
-    while(1)
-    {
-	G4double wlen, emission;
-	fractionDatafile >> wlen >> emission;
-	if(fractionDatafile.eof())
-	    break;
-	fraction->InsertValues(wavelenthToeV(wlen*nm), emission);
-    }
-    fractionDatafile.close();
+    ReadDataFile("emissionCsITl.dat", fraction);
     
     rindexCsITl = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexCsI.dat");
-    while(1)
-    {
-	G4double wlen, rindex;
-	rindexDatafile >> wlen >> rindex;
-	if(rindexDatafile.eof())
-	    break;
-	rindexCsITl->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexCsI.dat", rindexCsITl);
     
     absLengthCsITl = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffDatafile;
-    linAttCoeffDatafile.open("linAttCoeffCsITl.dat");
-    while(1)
-    {
-	G4double energy, linAttCoeff;
-	linAttCoeffDatafile >> energy >> linAttCoeff;
-	if(linAttCoeffDatafile.eof())
-	    break;
-	absLengthCsITl->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffDatafile.close();
+    ReadDataFile("linAttCoeffCsITl.dat", absLengthCsITl);
     
     G4MaterialPropertiesTable* mptCsITl = new G4MaterialPropertiesTable();
     DefineScintillator(mptCsITl, CsITl, 2, rindexCsITl, fraction, absLengthCsITl, 54./keV, 1., 1000.*ns);
@@ -536,43 +390,13 @@ void NSDetectorConstruction::DefineGSOCe()
     GSOCe->AddElement(O, 5);
     
     fraction = new G4PhysicsOrderedFreeVector();
-    std::ifstream fractionDatafile;
-    fractionDatafile.open("emissionGSOCe.dat");
-    while(1)
-    {
-	G4double wlen, emission;
-	fractionDatafile >> wlen >> emission;
-	if(fractionDatafile.eof())
-	    break;
-	fraction->InsertValues(wavelenthToeV(wlen*nm), emission);
-    }
-    fractionDatafile.close();
+    ReadDataFile("emissionGSOCe.dat", fraction);
     
     rindexGSOCe = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexGSO.dat");
-    while(1)
-    {
-	G4double wlen, rindex;
-	rindexDatafile >> wlen >> rindex;
-	if(rindexDatafile.eof())
-	    break;
-	rindexGSOCe->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexGSO.dat", rindexGSOCe);
     
     absLengthGSOCe = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffDatafile;
-    linAttCoeffDatafile.open("linAttCoeffGSOCe.dat");
-    while(1)
-    {
-	G4double energy, linAttCoeff;
-	linAttCoeffDatafile >> energy >> linAttCoeff;
-	if(linAttCoeffDatafile.eof())
-	    break;
-	absLengthGSOCe->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffDatafile.close();
+    ReadDataFile("linAttCoeffGSOCe.dat", absLengthGSOCe);
     
     G4MaterialPropertiesTable* mptGSOCe = new G4MaterialPropertiesTable();
     DefineScintillator(mptGSOCe, GSOCe, 3, rindexGSOCe, fraction, absLengthGSOCe, 10./keV, 1., 50.*ns);
@@ -589,43 +413,13 @@ void NSDetectorConstruction::DefineNaITl()
     NaITl->AddElement(I, 1);
     
     fraction = new G4PhysicsOrderedFreeVector();
-    std::ifstream fractionDatafile;
-    fractionDatafile.open("emissionNaITl.dat");
-    while(1)
-    {
-	G4double wlen, emission;
-	fractionDatafile >> wlen >> emission;
-	if(fractionDatafile.eof())
-	    break;
-	fraction->InsertValues(wavelenthToeV(wlen*nm), emission);
-    }
-    fractionDatafile.close();
+    ReadDataFile("emissionNaITl.dat", fraction);
     
     rindexNaITl = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexNaI.dat");
-    while(1)
-    {
-	G4double wlen, rindex;
-	rindexDatafile >> wlen >> rindex;
-	if(rindexDatafile.eof())
-	    break;
-	rindexNaITl->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexNaI.dat", rindexNaITl);
     
     absLengthNaITl = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffDatafile;
-    linAttCoeffDatafile.open("linAttCoeffNaITl.dat");
-    while(1)
-    {
-	G4double energy, linAttCoeff;
-	linAttCoeffDatafile >> energy >> linAttCoeff;
-	if(linAttCoeffDatafile.eof())
-	    break;
-	absLengthNaITl->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffDatafile.close();
+    ReadDataFile("linAttCoeffNaITl.dat", absLengthNaITl);
     
     G4MaterialPropertiesTable* mptNaITl = new G4MaterialPropertiesTable();
     DefineScintillator(mptNaITl, NaITl, 2, rindexNaITl, fraction, absLengthNaITl, 38./keV, 1., 230.*ns);
@@ -643,43 +437,13 @@ void NSDetectorConstruction::DefineGadoxTb()
     GadoxTb->AddElement(S, 1);
     
     fraction = new G4PhysicsOrderedFreeVector();
-    std::ifstream fractionDatafile;
-    fractionDatafile.open("emissionGadoxTb.dat");
-    while(1)
-    {
-	G4double wlen, emission;
-	fractionDatafile >> wlen >> emission;
-	if(fractionDatafile.eof())
-	    break;
-	fraction->InsertValues(wavelenthToeV(wlen*nm), emission);
-    }
-    fractionDatafile.close();
+    ReadDataFile("emissionGadoxTb.dat", fraction);
     
     rindexGadoxTb = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexDatafile;
-    rindexDatafile.open("rindexGadox.dat");
-    while(1)
-    {
-	G4double wlen, rindex;
-	rindexDatafile >> wlen >> rindex;
-	if(rindexDatafile.eof())
-	    break;
-	rindexGadoxTb->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexDatafile.close();
+    ReadDataFile("rindexGadox.dat", rindexGadoxTb);
     
     absLengthGadoxTb = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffDatafile;
-    linAttCoeffDatafile.open("linAttCoeffGadoxTb.dat");
-    while(1)
-    {
-	G4double energy, linAttCoeff;
-	linAttCoeffDatafile >> energy >> linAttCoeff;
-	if(linAttCoeffDatafile.eof())
-	    break;
-	absLengthGadoxTb->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffDatafile.close();
+    ReadDataFile("linAttCoeffGadoxTb.dat", absLengthGadoxTb);
     
     G4MaterialPropertiesTable* mptGadoxTb = new G4MaterialPropertiesTable();
     DefineScintillator(mptGadoxTb, GadoxTb, 3, rindexGadoxTb, fraction, absLengthGadoxTb, 60./keV, 1., 1000000.*ns);
@@ -696,30 +460,10 @@ void NSDetectorConstruction::DefineSiO2()
     SiO2->AddElement(O, 2);
 
     rindexSiO2 = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexSiO2Datafile;
-    rindexSiO2Datafile.open("rindexNaI.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexSiO2Datafile >> wlen >> rindex;
-      	if(rindexSiO2Datafile.eof())
-      	    break;
-      	rindexSiO2->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexSiO2Datafile.close();
+    ReadDataFile("rindexSiO2.dat", rindexSiO2);
     
     absLengthSiO2 = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffSiO2Datafile;
-    linAttCoeffSiO2Datafile.open("linAttCoeffSiO2.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffSiO2Datafile >> energy >> linAttCoeff;
-      	if(linAttCoeffSiO2Datafile.eof())
-      	    break;
-      	absLengthSiO2->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffSiO2Datafile.close();
+    ReadDataFile("linAttCoeffSiO2.dat", absLengthSiO2);
     
     G4MaterialPropertiesTable *mptSiO2 = DefineNonScintillatingMaterial(SiO2, 2, rindexSiO2, absLengthSiO2);
     
@@ -735,30 +479,10 @@ void NSDetectorConstruction::DefineTiO2()
     TiO2->AddElement(O, 2);
 
     rindexTiO2 = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexTiO2Datafile;
-    rindexTiO2Datafile.open("rindexNaI.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexTiO2Datafile >> wlen >> rindex;
-      	if(rindexTiO2Datafile.eof())
-      	    break;
-      	rindexTiO2->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexTiO2Datafile.close();
+    ReadDataFile("rindexTiO2.dat", rindexTiO2);
     
     absLengthTiO2 = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffTiO2Datafile;
-    linAttCoeffTiO2Datafile.open("linAttCoeffTiO2.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffTiO2Datafile >> energy >> linAttCoeff;
-      	if(linAttCoeffTiO2Datafile.eof())
-      	    break;
-      	absLengthTiO2->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffTiO2Datafile.close();
+    ReadDataFile("linAttCoeffTiO2.dat", absLengthTiO2);
     
     G4MaterialPropertiesTable *mptTiO2 = DefineNonScintillatingMaterial(TiO2, 2, rindexTiO2, absLengthTiO2);
     
@@ -787,30 +511,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMTeeth->AddElement(Gd, 0.);
 
     rindexAMTeeth = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMTeethDatafile;
-    rindexAMTeethDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMTeethDatafile >> wlen >> rindex;
-      	if(rindexAMTeethDatafile.eof())
-      	    break;
-      	rindexAMTeeth->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMTeethDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMTeeth);
     
     absLengthAMTeeth = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMTeethDatafile;
-    linAttCoeffAMTeethDatafile.open("linAttCoeffAMTeeth.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMTeethDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMTeethDatafile.eof())
-      	    break;
-      	absLengthAMTeeth->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMTeethDatafile.close();
+    ReadDataFile("linAttCoeffAMTeeth.dat", absLengthAMTeeth);
     
     G4MaterialPropertiesTable *mptAMTeeth = DefineNonScintillatingMaterial(AMTeeth, 14, rindexAMTeeth, absLengthAMTeeth);
     
@@ -832,30 +536,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMMineralBone->AddElement(Gd, 0.);
 
     rindexAMMineralBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMMineralBoneDatafile;
-    rindexAMMineralBoneDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMMineralBoneDatafile >> wlen >> rindex;
-      	if(rindexAMMineralBoneDatafile.eof())
-      	    break;
-      	rindexAMMineralBone->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMMineralBoneDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMMineralBone);
     
     absLengthAMMineralBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMMineralBoneDatafile;
-    linAttCoeffAMMineralBoneDatafile.open("linAttCoeffAMMineralBone.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMMineralBoneDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMMineralBoneDatafile.eof())
-      	    break;
-      	absLengthAMMineralBone->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMMineralBoneDatafile.close();
+    ReadDataFile("linAttCoeffAMMineralBone.dat", absLengthAMMineralBone);
     
     G4MaterialPropertiesTable *mptAMMineralBone = DefineNonScintillatingMaterial(AMMineralBone, 14, rindexAMMineralBone, absLengthAMMineralBone);
     
@@ -877,30 +561,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMHumeriUpper->AddElement(Gd, 0.);
 
     rindexAMHumeriUpper = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMHumeriUpperDatafile;
-    rindexAMHumeriUpperDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMHumeriUpperDatafile >> wlen >> rindex;
-      	if(rindexAMHumeriUpperDatafile.eof())
-      	    break;
-      	rindexAMHumeriUpper->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMHumeriUpperDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMHumeriUpper);
     
     absLengthAMHumeriUpper = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMHumeriUpperDatafile;
-    linAttCoeffAMHumeriUpperDatafile.open("linAttCoeffAMHumeriUpper.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMHumeriUpperDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMHumeriUpperDatafile.eof())
-      	    break;
-      	absLengthAMHumeriUpper->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMHumeriUpperDatafile.close();
+    ReadDataFile("linAttCoeffAMHumeriUpper.dat", absLengthAMHumeriUpper);
     
     G4MaterialPropertiesTable *mptAMHumeriUpper = DefineNonScintillatingMaterial(AMHumeriUpper, 14, rindexAMHumeriUpper, absLengthAMHumeriUpper);
     
@@ -922,30 +586,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMHumeriLower->AddElement(Gd, 0.);
 
     rindexAMHumeriLower = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMHumeriLowerDatafile;
-    rindexAMHumeriLowerDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMHumeriLowerDatafile >> wlen >> rindex;
-      	if(rindexAMHumeriLowerDatafile.eof())
-      	    break;
-      	rindexAMHumeriLower->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMHumeriLowerDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMHumeriLower);
     
     absLengthAMHumeriLower = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMHumeriLowerDatafile;
-    linAttCoeffAMHumeriLowerDatafile.open("linAttCoeffAMHumeriLower.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMHumeriLowerDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMHumeriLowerDatafile.eof())
-      	    break;
-      	absLengthAMHumeriLower->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMHumeriLowerDatafile.close();
+    ReadDataFile("linAttCoeffAMHumeriLower.dat", absLengthAMHumeriLower);
     
     G4MaterialPropertiesTable *mptAMHumeriLower = DefineNonScintillatingMaterial(AMHumeriLower, 14, rindexAMHumeriLower, absLengthAMHumeriLower);
     
@@ -967,30 +611,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMLowerArmBone->AddElement(Gd, 0.);
 
     rindexAMLowerArmBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMLowerArmBoneDatafile;
-    rindexAMLowerArmBoneDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMLowerArmBoneDatafile >> wlen >> rindex;
-      	if(rindexAMLowerArmBoneDatafile.eof())
-      	    break;
-      	rindexAMLowerArmBone->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMLowerArmBoneDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMLowerArmBone);
     
     absLengthAMLowerArmBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMLowerArmBoneDatafile;
-    linAttCoeffAMLowerArmBoneDatafile.open("linAttCoeffAMLowerArmBone.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMLowerArmBoneDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMLowerArmBoneDatafile.eof())
-      	    break;
-      	absLengthAMLowerArmBone->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMLowerArmBoneDatafile.close();
+    ReadDataFile("linAttCoeffAMLowerArmBone.dat", absLengthAMLowerArmBone);
     
     G4MaterialPropertiesTable *mptAMLowerArmBone = DefineNonScintillatingMaterial(AMLowerArmBone, 14, rindexAMLowerArmBone, absLengthAMLowerArmBone);
     
@@ -1012,30 +636,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMHandBone->AddElement(Gd, 0.);
 
     rindexAMHandBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMHandBoneDatafile;
-    rindexAMHandBoneDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMHandBoneDatafile >> wlen >> rindex;
-      	if(rindexAMHandBoneDatafile.eof())
-      	    break;
-      	rindexAMHandBone->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMHandBoneDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMHandBone);
     
     absLengthAMHandBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMHandBoneDatafile;
-    linAttCoeffAMHandBoneDatafile.open("linAttCoeffAMHandBone.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMHandBoneDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMHandBoneDatafile.eof())
-      	    break;
-      	absLengthAMHandBone->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMHandBoneDatafile.close();
+    ReadDataFile("linAttCoeffAMHandBone.dat", absLengthAMHandBone);
     
     G4MaterialPropertiesTable *mptAMHandBone = DefineNonScintillatingMaterial(AMHandBone, 14, rindexAMHandBone, absLengthAMHandBone);
     
@@ -1057,30 +661,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMClavicles->AddElement(Gd, 0.);
 
     rindexAMClavicles = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMClaviclesDatafile;
-    rindexAMClaviclesDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMClaviclesDatafile >> wlen >> rindex;
-      	if(rindexAMClaviclesDatafile.eof())
-      	    break;
-      	rindexAMClavicles->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMClaviclesDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMClavicles);
     
     absLengthAMClavicles = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMClaviclesDatafile;
-    linAttCoeffAMClaviclesDatafile.open("linAttCoeffAMClavicles.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMClaviclesDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMClaviclesDatafile.eof())
-      	    break;
-      	absLengthAMClavicles->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMClaviclesDatafile.close();
+    ReadDataFile("linAttCoeffAMClavicles.dat", absLengthAMClavicles);
     
     G4MaterialPropertiesTable *mptAMClavicles = DefineNonScintillatingMaterial(AMClavicles, 14, rindexAMClavicles, absLengthAMClavicles);
     
@@ -1102,30 +686,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMCranium->AddElement(Gd, 0.);
 
     rindexAMCranium = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMCraniumDatafile;
-    rindexAMCraniumDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMCraniumDatafile >> wlen >> rindex;
-      	if(rindexAMCraniumDatafile.eof())
-      	    break;
-      	rindexAMCranium->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMCraniumDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMCranium);
     
     absLengthAMCranium = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMCraniumDatafile;
-    linAttCoeffAMCraniumDatafile.open("linAttCoeffAMCranium.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMCraniumDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMCraniumDatafile.eof())
-      	    break;
-      	absLengthAMCranium->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMCraniumDatafile.close();
+    ReadDataFile("linAttCoeffAMCranium.dat", absLengthAMCranium);
     
     G4MaterialPropertiesTable *mptAMCranium = DefineNonScintillatingMaterial(AMCranium, 14, rindexAMCranium, absLengthAMCranium);
     
@@ -1147,30 +711,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMFemoraUpper->AddElement(Gd, 0.);
 
     rindexAMFemoraUpper = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMFemoraUpperDatafile;
-    rindexAMFemoraUpperDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMFemoraUpperDatafile >> wlen >> rindex;
-      	if(rindexAMFemoraUpperDatafile.eof())
-      	    break;
-      	rindexAMFemoraUpper->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMFemoraUpperDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMFemoraUpper);
     
     absLengthAMFemoraUpper = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMFemoraUpperDatafile;
-    linAttCoeffAMFemoraUpperDatafile.open("linAttCoeffAMFemoraUpper.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMFemoraUpperDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMFemoraUpperDatafile.eof())
-      	    break;
-      	absLengthAMFemoraUpper->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMFemoraUpperDatafile.close();
+    ReadDataFile("linAttCoeffAMFemoraUpper.dat", absLengthAMFemoraUpper);
     
     G4MaterialPropertiesTable *mptAMFemoraUpper = DefineNonScintillatingMaterial(AMFemoraUpper, 14, rindexAMFemoraUpper, absLengthAMFemoraUpper);
     
@@ -1192,30 +736,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMFemoraLower->AddElement(Gd, 0.);
 
     rindexAMFemoraLower = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMFemoraLowerDatafile;
-    rindexAMFemoraLowerDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMFemoraLowerDatafile >> wlen >> rindex;
-      	if(rindexAMFemoraLowerDatafile.eof())
-      	    break;
-      	rindexAMFemoraLower->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMFemoraLowerDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMFemoraLower);
     
     absLengthAMFemoraLower = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMFemoraLowerDatafile;
-    linAttCoeffAMFemoraLowerDatafile.open("linAttCoeffAMFemoraLower.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMFemoraLowerDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMFemoraLowerDatafile.eof())
-      	    break;
-      	absLengthAMFemoraLower->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMFemoraLowerDatafile.close();
+    ReadDataFile("linAttCoeffAMFemoraLower.dat", absLengthAMFemoraLower);
     
     G4MaterialPropertiesTable *mptAMFemoraLower = DefineNonScintillatingMaterial(AMFemoraLower, 14, rindexAMFemoraLower, absLengthAMFemoraLower);
     
@@ -1237,30 +761,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMLowerLeg->AddElement(Gd, 0.);
 
     rindexAMLowerLeg = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMLowerLegDatafile;
-    rindexAMLowerLegDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMLowerLegDatafile >> wlen >> rindex;
-      	if(rindexAMLowerLegDatafile.eof())
-      	    break;
-      	rindexAMLowerLeg->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMLowerLegDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMLowerLeg);
     
     absLengthAMLowerLeg = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMLowerLegDatafile;
-    linAttCoeffAMLowerLegDatafile.open("linAttCoeffAMLowerLeg.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMLowerLegDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMLowerLegDatafile.eof())
-      	    break;
-      	absLengthAMLowerLeg->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMLowerLegDatafile.close();
+    ReadDataFile("linAttCoeffAMLowerLeg.dat", absLengthAMLowerLeg);
     
     G4MaterialPropertiesTable *mptAMLowerLeg = DefineNonScintillatingMaterial(AMLowerLeg, 14, rindexAMLowerLeg, absLengthAMLowerLeg);
     
@@ -1282,30 +786,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMFoot->AddElement(Gd, 0.);
 
     rindexAMFoot = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMFootDatafile;
-    rindexAMFootDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMFootDatafile >> wlen >> rindex;
-      	if(rindexAMFootDatafile.eof())
-      	    break;
-      	rindexAMFoot->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMFootDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMFoot);
     
     absLengthAMFoot = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMFootDatafile;
-    linAttCoeffAMFootDatafile.open("linAttCoeffAMFoot.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMFootDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMFootDatafile.eof())
-      	    break;
-      	absLengthAMFoot->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMFootDatafile.close();
+    ReadDataFile("linAttCoeffAMFoot.dat", absLengthAMFoot);
     
     G4MaterialPropertiesTable *mptAMFoot = DefineNonScintillatingMaterial(AMFoot, 14, rindexAMFoot, absLengthAMFoot);
     
@@ -1327,30 +811,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMMandible->AddElement(Gd, 0.);
 
     rindexAMMandible = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMMandibleDatafile;
-    rindexAMMandibleDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMMandibleDatafile >> wlen >> rindex;
-      	if(rindexAMMandibleDatafile.eof())
-      	    break;
-      	rindexAMMandible->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMMandibleDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMMandible);
     
     absLengthAMMandible = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMMandibleDatafile;
-    linAttCoeffAMMandibleDatafile.open("linAttCoeffAMMandible.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMMandibleDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMMandibleDatafile.eof())
-      	    break;
-      	absLengthAMMandible->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMMandibleDatafile.close();
+    ReadDataFile("linAttCoeffAMMandible.dat", absLengthAMMandible);
     
     G4MaterialPropertiesTable *mptAMMandible = DefineNonScintillatingMaterial(AMMandible, 14, rindexAMMandible, absLengthAMMandible);
     
@@ -1372,30 +836,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMPelvis->AddElement(Gd, 0.);
 
     rindexAMPelvis = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMPelvisDatafile;
-    rindexAMPelvisDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMPelvisDatafile >> wlen >> rindex;
-      	if(rindexAMPelvisDatafile.eof())
-      	    break;
-      	rindexAMPelvis->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMPelvisDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMPelvis);
     
     absLengthAMPelvis = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMPelvisDatafile;
-    linAttCoeffAMPelvisDatafile.open("linAttCoeffAMPelvis.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMPelvisDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMPelvisDatafile.eof())
-      	    break;
-      	absLengthAMPelvis->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMPelvisDatafile.close();
+    ReadDataFile("linAttCoeffAMPelvis.dat", absLengthAMPelvis);
     
     G4MaterialPropertiesTable *mptAMPelvis = DefineNonScintillatingMaterial(AMPelvis, 14, rindexAMPelvis, absLengthAMPelvis);
     
@@ -1417,30 +861,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMRibs->AddElement(Gd, 0.);
 
     rindexAMRibs = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMRibsDatafile;
-    rindexAMRibsDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMRibsDatafile >> wlen >> rindex;
-      	if(rindexAMRibsDatafile.eof())
-      	    break;
-      	rindexAMRibs->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMRibsDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMRibs);
     
     absLengthAMRibs = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMRibsDatafile;
-    linAttCoeffAMRibsDatafile.open("linAttCoeffAMRibs.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMRibsDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMRibsDatafile.eof())
-      	    break;
-      	absLengthAMRibs->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMRibsDatafile.close();
+    ReadDataFile("linAttCoeffAMRibs.dat", absLengthAMRibs);
     
     G4MaterialPropertiesTable *mptAMRibs = DefineNonScintillatingMaterial(AMRibs, 14, rindexAMRibs, absLengthAMRibs);
     
@@ -1462,30 +886,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMScapulae->AddElement(Gd, 0.);
 
     rindexAMScapulae = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMScapulaeDatafile;
-    rindexAMScapulaeDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMScapulaeDatafile >> wlen >> rindex;
-      	if(rindexAMScapulaeDatafile.eof())
-      	    break;
-      	rindexAMScapulae->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMScapulaeDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMScapulae);
     
     absLengthAMScapulae = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMScapulaeDatafile;
-    linAttCoeffAMScapulaeDatafile.open("linAttCoeffAMScapulae.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMScapulaeDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMScapulaeDatafile.eof())
-      	    break;
-      	absLengthAMScapulae->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMScapulaeDatafile.close();
+    ReadDataFile("linAttCoeffAMScapulae.dat", absLengthAMScapulae);
     
     G4MaterialPropertiesTable *mptAMScapulae = DefineNonScintillatingMaterial(AMScapulae, 14, rindexAMScapulae, absLengthAMScapulae);
     
@@ -1507,30 +911,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMCervicalSpine->AddElement(Gd, 0.);
 
     rindexAMCervicalSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMCervicalSpineDatafile;
-    rindexAMCervicalSpineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMCervicalSpineDatafile >> wlen >> rindex;
-      	if(rindexAMCervicalSpineDatafile.eof())
-      	    break;
-      	rindexAMCervicalSpine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMCervicalSpineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMCervicalSpine);
     
     absLengthAMCervicalSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMCervicalSpineDatafile;
-    linAttCoeffAMCervicalSpineDatafile.open("linAttCoeffAMCervicalSpine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMCervicalSpineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMCervicalSpineDatafile.eof())
-      	    break;
-      	absLengthAMCervicalSpine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMCervicalSpineDatafile.close();
+    ReadDataFile("linAttCoeffAMCervicalSpine.dat", absLengthAMCervicalSpine);
     
     G4MaterialPropertiesTable *mptAMCervicalSpine = DefineNonScintillatingMaterial(AMCervicalSpine, 14, rindexAMCervicalSpine, absLengthAMCervicalSpine);
     
@@ -1552,30 +936,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMThoracicSpine->AddElement(Gd, 0.);
 
     rindexAMThoracicSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMThoracicSpineDatafile;
-    rindexAMThoracicSpineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMThoracicSpineDatafile >> wlen >> rindex;
-      	if(rindexAMThoracicSpineDatafile.eof())
-      	    break;
-      	rindexAMThoracicSpine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMThoracicSpineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMThoracicSpine);
     
     absLengthAMThoracicSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMThoracicSpineDatafile;
-    linAttCoeffAMThoracicSpineDatafile.open("linAttCoeffAMThoracicSpine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMThoracicSpineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMThoracicSpineDatafile.eof())
-      	    break;
-      	absLengthAMThoracicSpine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMThoracicSpineDatafile.close();
+    ReadDataFile("linAttCoeffAMThoracicSpine.dat", absLengthAMThoracicSpine);
     
     G4MaterialPropertiesTable *mptAMThoracicSpine = DefineNonScintillatingMaterial(AMThoracicSpine, 14, rindexAMThoracicSpine, absLengthAMThoracicSpine);
     
@@ -1597,30 +961,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMLumbarSpine->AddElement(Gd, 0.);
 
     rindexAMLumbarSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMLumbarSpineDatafile;
-    rindexAMLumbarSpineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMLumbarSpineDatafile >> wlen >> rindex;
-      	if(rindexAMLumbarSpineDatafile.eof())
-      	    break;
-      	rindexAMLumbarSpine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMLumbarSpineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMLumbarSpine);
     
     absLengthAMLumbarSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMLumbarSpineDatafile;
-    linAttCoeffAMLumbarSpineDatafile.open("linAttCoeffAMLumbarSpine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMLumbarSpineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMLumbarSpineDatafile.eof())
-      	    break;
-      	absLengthAMLumbarSpine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMLumbarSpineDatafile.close();
+    ReadDataFile("linAttCoeffAMLumbarSpine.dat", absLengthAMLumbarSpine);
     
     G4MaterialPropertiesTable *mptAMLumbarSpine = DefineNonScintillatingMaterial(AMLumbarSpine, 14, rindexAMLumbarSpine, absLengthAMLumbarSpine);
     
@@ -1642,30 +986,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMSacrum->AddElement(Gd, 0.);
 
     rindexAMSacrum = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMSacrumDatafile;
-    rindexAMSacrumDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMSacrumDatafile >> wlen >> rindex;
-      	if(rindexAMSacrumDatafile.eof())
-      	    break;
-      	rindexAMSacrum->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMSacrumDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMSacrum);
     
     absLengthAMSacrum = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMSacrumDatafile;
-    linAttCoeffAMSacrumDatafile.open("linAttCoeffAMSacrum.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMSacrumDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMSacrumDatafile.eof())
-      	    break;
-      	absLengthAMSacrum->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMSacrumDatafile.close();
+    ReadDataFile("linAttCoeffAMSacrum.dat", absLengthAMSacrum);
     
     G4MaterialPropertiesTable *mptAMSacrum = DefineNonScintillatingMaterial(AMSacrum, 14, rindexAMSacrum, absLengthAMSacrum);
     
@@ -1687,30 +1011,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMSternum->AddElement(Gd, 0.);
 
     rindexAMSternum = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMSternumDatafile;
-    rindexAMSternumDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMSternumDatafile >> wlen >> rindex;
-      	if(rindexAMSternumDatafile.eof())
-      	    break;
-      	rindexAMSternum->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMSternumDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMSternum);
     
     absLengthAMSternum = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMSternumDatafile;
-    linAttCoeffAMSternumDatafile.open("linAttCoeffAMSternum.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMSternumDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMSternumDatafile.eof())
-      	    break;
-      	absLengthAMSternum->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMSternumDatafile.close();
+    ReadDataFile("linAttCoeffAMSternum.dat", absLengthAMSternum);
     
     G4MaterialPropertiesTable *mptAMSternum = DefineNonScintillatingMaterial(AMSternum, 14, rindexAMSternum, absLengthAMSternum);
     
@@ -1732,30 +1036,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMHumeriFemoraUpperMedullaryCavity->AddElement(Gd, 0.);
 
     rindexAMHumeriFemoraUpperMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMHumeriFemoraUpperMedullaryCavityDatafile;
-    rindexAMHumeriFemoraUpperMedullaryCavityDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMHumeriFemoraUpperMedullaryCavityDatafile >> wlen >> rindex;
-      	if(rindexAMHumeriFemoraUpperMedullaryCavityDatafile.eof())
-      	    break;
-      	rindexAMHumeriFemoraUpperMedullaryCavity->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMHumeriFemoraUpperMedullaryCavityDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMHumeriFemoraUpperMedullaryCavity);
     
     absLengthAMHumeriFemoraUpperMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMHumeriFemoraUpperMedullaryCavityDatafile;
-    linAttCoeffAMHumeriFemoraUpperMedullaryCavityDatafile.open("linAttCoeffAMHumeriFemoraUpperMedullaryCavity.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMHumeriFemoraUpperMedullaryCavityDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMHumeriFemoraUpperMedullaryCavityDatafile.eof())
-      	    break;
-      	absLengthAMHumeriFemoraUpperMedullaryCavity->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMHumeriFemoraUpperMedullaryCavityDatafile.close();
+    ReadDataFile("linAttCoeffAMHumeriFemoraUpperMedullaryCavity.dat", absLengthAMHumeriFemoraUpperMedullaryCavity);
     
     G4MaterialPropertiesTable *mptAMHumeriFemoraUpperMedullaryCavity = DefineNonScintillatingMaterial(AMHumeriFemoraUpperMedullaryCavity, 14, rindexAMHumeriFemoraUpperMedullaryCavity, absLengthAMHumeriFemoraUpperMedullaryCavity);
     
@@ -1777,30 +1061,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMHumeriFemoraLowerMedullaryCavity->AddElement(Gd, 0.);
 
     rindexAMHumeriFemoraLowerMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMHumeriFemoraLowerMedullaryCavityDatafile;
-    rindexAMHumeriFemoraLowerMedullaryCavityDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMHumeriFemoraLowerMedullaryCavityDatafile >> wlen >> rindex;
-      	if(rindexAMHumeriFemoraLowerMedullaryCavityDatafile.eof())
-      	    break;
-      	rindexAMHumeriFemoraLowerMedullaryCavity->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMHumeriFemoraLowerMedullaryCavityDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMHumeriFemoraLowerMedullaryCavity);
     
     absLengthAMHumeriFemoraLowerMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMHumeriFemoraLowerMedullaryCavityDatafile;
-    linAttCoeffAMHumeriFemoraLowerMedullaryCavityDatafile.open("linAttCoeffAMHumeriFemoraLowerMedullaryCavity.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMHumeriFemoraLowerMedullaryCavityDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMHumeriFemoraLowerMedullaryCavityDatafile.eof())
-      	    break;
-      	absLengthAMHumeriFemoraLowerMedullaryCavity->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMHumeriFemoraLowerMedullaryCavityDatafile.close();
+    ReadDataFile("linAttCoeffAMHumeriFemoraLowerMedullaryCavity.dat", absLengthAMHumeriFemoraLowerMedullaryCavity);
     
     G4MaterialPropertiesTable *mptAMHumeriFemoraLowerMedullaryCavity = DefineNonScintillatingMaterial(AMHumeriFemoraLowerMedullaryCavity, 14, rindexAMHumeriFemoraLowerMedullaryCavity, absLengthAMHumeriFemoraLowerMedullaryCavity);
     
@@ -1822,30 +1086,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMLowerArmMedullaryCavity->AddElement(Gd, 0.);
 
     rindexAMLowerArmMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMLowerArmMedullaryCavityDatafile;
-    rindexAMLowerArmMedullaryCavityDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMLowerArmMedullaryCavityDatafile >> wlen >> rindex;
-      	if(rindexAMLowerArmMedullaryCavityDatafile.eof())
-      	    break;
-      	rindexAMLowerArmMedullaryCavity->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMLowerArmMedullaryCavityDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMLowerArmMedullaryCavity);
     
     absLengthAMLowerArmMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMLowerArmMedullaryCavityDatafile;
-    linAttCoeffAMLowerArmMedullaryCavityDatafile.open("linAttCoeffAMLowerArmMedullaryCavity.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMLowerArmMedullaryCavityDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMLowerArmMedullaryCavityDatafile.eof())
-      	    break;
-      	absLengthAMLowerArmMedullaryCavity->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMLowerArmMedullaryCavityDatafile.close();
+    ReadDataFile("linAttCoeffAMLowerArmMedullaryCavity.dat", absLengthAMLowerArmMedullaryCavity);
     
     G4MaterialPropertiesTable *mptAMLowerArmMedullaryCavity = DefineNonScintillatingMaterial(AMLowerArmMedullaryCavity, 14, rindexAMLowerArmMedullaryCavity, absLengthAMLowerArmMedullaryCavity);
     
@@ -1867,30 +1111,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMLowerLegMedullaryCavity->AddElement(Gd, 0.);
 
     rindexAMLowerLegMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMLowerLegMedullaryCavityDatafile;
-    rindexAMLowerLegMedullaryCavityDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMLowerLegMedullaryCavityDatafile >> wlen >> rindex;
-      	if(rindexAMLowerLegMedullaryCavityDatafile.eof())
-      	    break;
-      	rindexAMLowerLegMedullaryCavity->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMLowerLegMedullaryCavityDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMLowerLegMedullaryCavity);
     
     absLengthAMLowerLegMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMLowerLegMedullaryCavityDatafile;
-    linAttCoeffAMLowerLegMedullaryCavityDatafile.open("linAttCoeffAMLowerLegMedullaryCavity.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMLowerLegMedullaryCavityDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMLowerLegMedullaryCavityDatafile.eof())
-      	    break;
-      	absLengthAMLowerLegMedullaryCavity->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMLowerLegMedullaryCavityDatafile.close();
+    ReadDataFile("linAttCoeffAMLowerLegMedullaryCavity.dat", absLengthAMLowerLegMedullaryCavity);
     
     G4MaterialPropertiesTable *mptAMLowerLegMedullaryCavity = DefineNonScintillatingMaterial(AMLowerLegMedullaryCavity, 14, rindexAMLowerLegMedullaryCavity, absLengthAMLowerLegMedullaryCavity);
     
@@ -1912,30 +1136,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMCartilage->AddElement(Gd, 0.);
 
     rindexAMCartilage = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMCartilageDatafile;
-    rindexAMCartilageDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMCartilageDatafile >> wlen >> rindex;
-      	if(rindexAMCartilageDatafile.eof())
-      	    break;
-      	rindexAMCartilage->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMCartilageDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMCartilage);
     
     absLengthAMCartilage = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMCartilageDatafile;
-    linAttCoeffAMCartilageDatafile.open("linAttCoeffAMCartilage.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMCartilageDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMCartilageDatafile.eof())
-      	    break;
-      	absLengthAMCartilage->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMCartilageDatafile.close();
+    ReadDataFile("linAttCoeffAMCartilage.dat", absLengthAMCartilage);
     
     G4MaterialPropertiesTable *mptAMCartilage = DefineNonScintillatingMaterial(AMCartilage, 14, rindexAMCartilage, absLengthAMCartilage);
     
@@ -1957,30 +1161,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMSkin->AddElement(Gd, 0.);
 
     rindexAMSkin = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMSkinDatafile;
-    rindexAMSkinDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMSkinDatafile >> wlen >> rindex;
-      	if(rindexAMSkinDatafile.eof())
-      	    break;
-      	rindexAMSkin->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMSkinDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMSkin);
     
     absLengthAMSkin = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMSkinDatafile;
-    linAttCoeffAMSkinDatafile.open("linAttCoeffAMSkin.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMSkinDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMSkinDatafile.eof())
-      	    break;
-      	absLengthAMSkin->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMSkinDatafile.close();
+    ReadDataFile("linAttCoeffAMSkin.dat", absLengthAMSkin);
     
     G4MaterialPropertiesTable *mptAMSkin = DefineNonScintillatingMaterial(AMSkin, 14, rindexAMSkin, absLengthAMSkin);
     
@@ -2002,30 +1186,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMBlood->AddElement(Gd, 0.);
 
     rindexAMBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMBloodDatafile;
-    rindexAMBloodDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMBloodDatafile >> wlen >> rindex;
-      	if(rindexAMBloodDatafile.eof())
-      	    break;
-      	rindexAMBlood->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMBloodDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMBlood);
     
     absLengthAMBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMBloodDatafile;
-    linAttCoeffAMBloodDatafile.open("linAttCoeffAMBlood.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMBloodDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMBloodDatafile.eof())
-      	    break;
-      	absLengthAMBlood->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMBloodDatafile.close();
+    ReadDataFile("linAttCoeffAMBlood.dat", absLengthAMBlood);
     
     G4MaterialPropertiesTable *mptAMBlood = DefineNonScintillatingMaterial(AMBlood, 14, rindexAMBlood, absLengthAMBlood);
     
@@ -2047,30 +1211,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMMuscle->AddElement(Gd, 0.);
 
     rindexAMMuscle = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMMuscleDatafile;
-    rindexAMMuscleDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMMuscleDatafile >> wlen >> rindex;
-      	if(rindexAMMuscleDatafile.eof())
-      	    break;
-      	rindexAMMuscle->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMMuscleDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMMuscle);
     
     absLengthAMMuscle = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMMuscleDatafile;
-    linAttCoeffAMMuscleDatafile.open("linAttCoeffAMMuscle.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMMuscleDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMMuscleDatafile.eof())
-      	    break;
-      	absLengthAMMuscle->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMMuscleDatafile.close();
+    ReadDataFile("linAttCoeffAMMuscle.dat", absLengthAMMuscle);
     
     G4MaterialPropertiesTable *mptAMMuscle = DefineNonScintillatingMaterial(AMMuscle, 14, rindexAMMuscle, absLengthAMMuscle);
     
@@ -2092,30 +1236,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMLiver->AddElement(Gd, 0.);
 
     rindexAMLiver = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMLiverDatafile;
-    rindexAMLiverDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMLiverDatafile >> wlen >> rindex;
-      	if(rindexAMLiverDatafile.eof())
-      	    break;
-      	rindexAMLiver->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMLiverDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMLiver);
     
     absLengthAMLiver = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMLiverDatafile;
-    linAttCoeffAMLiverDatafile.open("linAttCoeffAMLiver.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMLiverDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMLiverDatafile.eof())
-      	    break;
-      	absLengthAMLiver->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMLiverDatafile.close();
+    ReadDataFile("linAttCoeffAMLiver.dat", absLengthAMLiver);
     
     G4MaterialPropertiesTable *mptAMLiver = DefineNonScintillatingMaterial(AMLiver, 14, rindexAMLiver, absLengthAMLiver);
     
@@ -2137,30 +1261,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMPancreas->AddElement(Gd, 0.);
 
     rindexAMPancreas = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMPancreasDatafile;
-    rindexAMPancreasDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMPancreasDatafile >> wlen >> rindex;
-      	if(rindexAMPancreasDatafile.eof())
-      	    break;
-      	rindexAMPancreas->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMPancreasDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMPancreas);
     
     absLengthAMPancreas = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMPancreasDatafile;
-    linAttCoeffAMPancreasDatafile.open("linAttCoeffAMPancreas.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMPancreasDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMPancreasDatafile.eof())
-      	    break;
-      	absLengthAMPancreas->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMPancreasDatafile.close();
+    ReadDataFile("linAttCoeffAMPancreas.dat", absLengthAMPancreas);
     
     G4MaterialPropertiesTable *mptAMPancreas = DefineNonScintillatingMaterial(AMPancreas, 14, rindexAMPancreas, absLengthAMPancreas);
     
@@ -2182,30 +1286,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMBrain->AddElement(Gd, 0.);
 
     rindexAMBrain = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMBrainDatafile;
-    rindexAMBrainDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMBrainDatafile >> wlen >> rindex;
-      	if(rindexAMBrainDatafile.eof())
-      	    break;
-      	rindexAMBrain->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMBrainDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMBrain);
     
     absLengthAMBrain = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMBrainDatafile;
-    linAttCoeffAMBrainDatafile.open("linAttCoeffAMBrain.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMBrainDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMBrainDatafile.eof())
-      	    break;
-      	absLengthAMBrain->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMBrainDatafile.close();
+    ReadDataFile("linAttCoeffAMBrain.dat", absLengthAMBrain);
     
     G4MaterialPropertiesTable *mptAMBrain = DefineNonScintillatingMaterial(AMBrain, 14, rindexAMBrain, absLengthAMBrain);
     
@@ -2227,30 +1311,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMHeart->AddElement(Gd, 0.);
 
     rindexAMHeart = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMHeartDatafile;
-    rindexAMHeartDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMHeartDatafile >> wlen >> rindex;
-      	if(rindexAMHeartDatafile.eof())
-      	    break;
-      	rindexAMHeart->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMHeartDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMHeart);
     
     absLengthAMHeart = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMHeartDatafile;
-    linAttCoeffAMHeartDatafile.open("linAttCoeffAMHeart.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMHeartDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMHeartDatafile.eof())
-      	    break;
-      	absLengthAMHeart->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMHeartDatafile.close();
+    ReadDataFile("linAttCoeffAMHeart.dat", absLengthAMHeart);
     
     G4MaterialPropertiesTable *mptAMHeart = DefineNonScintillatingMaterial(AMHeart, 14, rindexAMHeart, absLengthAMHeart);
     
@@ -2272,30 +1336,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMEyes->AddElement(Gd, 0.);
 
     rindexAMEyes = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMEyesDatafile;
-    rindexAMEyesDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMEyesDatafile >> wlen >> rindex;
-      	if(rindexAMEyesDatafile.eof())
-      	    break;
-      	rindexAMEyes->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMEyesDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMEyes);
     
     absLengthAMEyes = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMEyesDatafile;
-    linAttCoeffAMEyesDatafile.open("linAttCoeffAMEyes.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMEyesDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMEyesDatafile.eof())
-      	    break;
-      	absLengthAMEyes->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMEyesDatafile.close();
+    ReadDataFile("linAttCoeffAMEyes.dat", absLengthAMEyes);
     
     G4MaterialPropertiesTable *mptAMEyes = DefineNonScintillatingMaterial(AMEyes, 14, rindexAMEyes, absLengthAMEyes);
     
@@ -2317,30 +1361,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMKidneys->AddElement(Gd, 0.);
 
     rindexAMKidneys = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMKidneysDatafile;
-    rindexAMKidneysDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMKidneysDatafile >> wlen >> rindex;
-      	if(rindexAMKidneysDatafile.eof())
-      	    break;
-      	rindexAMKidneys->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMKidneysDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMKidneys);
     
     absLengthAMKidneys = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMKidneysDatafile;
-    linAttCoeffAMKidneysDatafile.open("linAttCoeffAMKidneys.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMKidneysDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMKidneysDatafile.eof())
-      	    break;
-      	absLengthAMKidneys->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMKidneysDatafile.close();
+    ReadDataFile("linAttCoeffAMKidneys.dat", absLengthAMKidneys);
     
     G4MaterialPropertiesTable *mptAMKidneys = DefineNonScintillatingMaterial(AMKidneys, 14, rindexAMKidneys, absLengthAMKidneys);
     
@@ -2362,30 +1386,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMStomach->AddElement(Gd, 0.);
 
     rindexAMStomach = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMStomachDatafile;
-    rindexAMStomachDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMStomachDatafile >> wlen >> rindex;
-      	if(rindexAMStomachDatafile.eof())
-      	    break;
-      	rindexAMStomach->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMStomachDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMStomach);
     
     absLengthAMStomach = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMStomachDatafile;
-    linAttCoeffAMStomachDatafile.open("linAttCoeffAMStomach.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMStomachDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMStomachDatafile.eof())
-      	    break;
-      	absLengthAMStomach->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMStomachDatafile.close();
+    ReadDataFile("linAttCoeffAMStomach.dat", absLengthAMStomach);
     
     G4MaterialPropertiesTable *mptAMStomach = DefineNonScintillatingMaterial(AMStomach, 14, rindexAMStomach, absLengthAMStomach);
     
@@ -2407,30 +1411,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMSmallIntestine->AddElement(Gd, 0.);
 
     rindexAMSmallIntestine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMSmallIntestineDatafile;
-    rindexAMSmallIntestineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMSmallIntestineDatafile >> wlen >> rindex;
-      	if(rindexAMSmallIntestineDatafile.eof())
-      	    break;
-      	rindexAMSmallIntestine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMSmallIntestineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMSmallIntestine);
     
     absLengthAMSmallIntestine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMSmallIntestineDatafile;
-    linAttCoeffAMSmallIntestineDatafile.open("linAttCoeffAMSmallIntestine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMSmallIntestineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMSmallIntestineDatafile.eof())
-      	    break;
-      	absLengthAMSmallIntestine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMSmallIntestineDatafile.close();
+    ReadDataFile("linAttCoeffAMSmallIntestine.dat", absLengthAMSmallIntestine);
     
     G4MaterialPropertiesTable *mptAMSmallIntestine = DefineNonScintillatingMaterial(AMSmallIntestine, 14, rindexAMSmallIntestine, absLengthAMSmallIntestine);
     
@@ -2452,30 +1436,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMLargeIntestine->AddElement(Gd, 0.);
 
     rindexAMLargeIntestine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMLargeIntestineDatafile;
-    rindexAMLargeIntestineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMLargeIntestineDatafile >> wlen >> rindex;
-      	if(rindexAMLargeIntestineDatafile.eof())
-      	    break;
-      	rindexAMLargeIntestine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMLargeIntestineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMLargeIntestine);
     
     absLengthAMLargeIntestine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMLargeIntestineDatafile;
-    linAttCoeffAMLargeIntestineDatafile.open("linAttCoeffAMLargeIntestine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMLargeIntestineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMLargeIntestineDatafile.eof())
-      	    break;
-      	absLengthAMLargeIntestine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMLargeIntestineDatafile.close();
+    ReadDataFile("linAttCoeffAMLargeIntestine.dat", absLengthAMLargeIntestine);
     
     G4MaterialPropertiesTable *mptAMLargeIntestine = DefineNonScintillatingMaterial(AMLargeIntestine, 14, rindexAMLargeIntestine, absLengthAMLargeIntestine);
     
@@ -2497,30 +1461,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMSpleen->AddElement(Gd, 0.);
 
     rindexAMSpleen = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMSpleenDatafile;
-    rindexAMSpleenDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMSpleenDatafile >> wlen >> rindex;
-      	if(rindexAMSpleenDatafile.eof())
-      	    break;
-      	rindexAMSpleen->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMSpleenDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMSpleen);
     
     absLengthAMSpleen = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMSpleenDatafile;
-    linAttCoeffAMSpleenDatafile.open("linAttCoeffAMSpleen.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMSpleenDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMSpleenDatafile.eof())
-      	    break;
-      	absLengthAMSpleen->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMSpleenDatafile.close();
+    ReadDataFile("linAttCoeffAMSpleen.dat", absLengthAMSpleen);
     
     G4MaterialPropertiesTable *mptAMSpleen = DefineNonScintillatingMaterial(AMSpleen, 14, rindexAMSpleen, absLengthAMSpleen);
     
@@ -2542,30 +1486,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMThyroid->AddElement(Gd, 0.);
 
     rindexAMThyroid = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMThyroidDatafile;
-    rindexAMThyroidDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMThyroidDatafile >> wlen >> rindex;
-      	if(rindexAMThyroidDatafile.eof())
-      	    break;
-      	rindexAMThyroid->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMThyroidDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMThyroid);
     
     absLengthAMThyroid = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMThyroidDatafile;
-    linAttCoeffAMThyroidDatafile.open("linAttCoeffAMThyroid.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMThyroidDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMThyroidDatafile.eof())
-      	    break;
-      	absLengthAMThyroid->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMThyroidDatafile.close();
+    ReadDataFile("linAttCoeffAMThyroid.dat", absLengthAMThyroid);
     
     G4MaterialPropertiesTable *mptAMThyroid = DefineNonScintillatingMaterial(AMThyroid, 14, rindexAMThyroid, absLengthAMThyroid);
     
@@ -2587,30 +1511,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMUrinaryBladder->AddElement(Gd, 0.);
 
     rindexAMUrinaryBladder = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMUrinaryBladderDatafile;
-    rindexAMUrinaryBladderDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMUrinaryBladderDatafile >> wlen >> rindex;
-      	if(rindexAMUrinaryBladderDatafile.eof())
-      	    break;
-      	rindexAMUrinaryBladder->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMUrinaryBladderDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMUrinaryBladder);
     
     absLengthAMUrinaryBladder = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMUrinaryBladderDatafile;
-    linAttCoeffAMUrinaryBladderDatafile.open("linAttCoeffAMUrinaryBladder.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMUrinaryBladderDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMUrinaryBladderDatafile.eof())
-      	    break;
-      	absLengthAMUrinaryBladder->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMUrinaryBladderDatafile.close();
+    ReadDataFile("linAttCoeffAMUrinaryBladder.dat", absLengthAMUrinaryBladder);
     
     G4MaterialPropertiesTable *mptAMUrinaryBladder = DefineNonScintillatingMaterial(AMUrinaryBladder, 14, rindexAMUrinaryBladder, absLengthAMUrinaryBladder);
     
@@ -2632,30 +1536,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMTestes->AddElement(Gd, 0.);
 
     rindexAMTestes = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMTestesDatafile;
-    rindexAMTestesDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMTestesDatafile >> wlen >> rindex;
-      	if(rindexAMTestesDatafile.eof())
-      	    break;
-      	rindexAMTestes->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMTestesDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMTestes);
     
     absLengthAMTestes = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMTestesDatafile;
-    linAttCoeffAMTestesDatafile.open("linAttCoeffAMTestes.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMTestesDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMTestesDatafile.eof())
-      	    break;
-      	absLengthAMTestes->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMTestesDatafile.close();
+    ReadDataFile("linAttCoeffAMTestes.dat", absLengthAMTestes);
     
     G4MaterialPropertiesTable *mptAMTestes = DefineNonScintillatingMaterial(AMTestes, 14, rindexAMTestes, absLengthAMTestes);
     
@@ -2677,30 +1561,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMAdrenals->AddElement(Gd, 0.);
 
     rindexAMAdrenals = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMAdrenalsDatafile;
-    rindexAMAdrenalsDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMAdrenalsDatafile >> wlen >> rindex;
-      	if(rindexAMAdrenalsDatafile.eof())
-      	    break;
-      	rindexAMAdrenals->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMAdrenalsDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMAdrenals);
     
     absLengthAMAdrenals = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMAdrenalsDatafile;
-    linAttCoeffAMAdrenalsDatafile.open("linAttCoeffAMAdrenals.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMAdrenalsDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMAdrenalsDatafile.eof())
-      	    break;
-      	absLengthAMAdrenals->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMAdrenalsDatafile.close();
+    ReadDataFile("linAttCoeffAMAdrenals.dat", absLengthAMAdrenals);
     
     G4MaterialPropertiesTable *mptAMAdrenals = DefineNonScintillatingMaterial(AMAdrenals, 14, rindexAMAdrenals, absLengthAMAdrenals);
     
@@ -2722,30 +1586,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMOesophagus->AddElement(Gd, 0.);
 
     rindexAMOesophagus = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMOesophagusDatafile;
-    rindexAMOesophagusDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMOesophagusDatafile >> wlen >> rindex;
-      	if(rindexAMOesophagusDatafile.eof())
-      	    break;
-      	rindexAMOesophagus->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMOesophagusDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMOesophagus);
     
     absLengthAMOesophagus = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMOesophagusDatafile;
-    linAttCoeffAMOesophagusDatafile.open("linAttCoeffAMOesophagus.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMOesophagusDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMOesophagusDatafile.eof())
-      	    break;
-      	absLengthAMOesophagus->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMOesophagusDatafile.close();
+    ReadDataFile("linAttCoeffAMOesophagus.dat", absLengthAMOesophagus);
     
     G4MaterialPropertiesTable *mptAMOesophagus = DefineNonScintillatingMaterial(AMOesophagus, 14, rindexAMOesophagus, absLengthAMOesophagus);
     
@@ -2767,30 +1611,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMGallbladder->AddElement(Gd, 0.);
 
     rindexAMGallbladder = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMGallbladderDatafile;
-    rindexAMGallbladderDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMGallbladderDatafile >> wlen >> rindex;
-      	if(rindexAMGallbladderDatafile.eof())
-      	    break;
-      	rindexAMGallbladder->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMGallbladderDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMGallbladder);
     
     absLengthAMGallbladder = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMGallbladderDatafile;
-    linAttCoeffAMGallbladderDatafile.open("linAttCoeffAMGallbladder.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMGallbladderDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMGallbladderDatafile.eof())
-      	    break;
-      	absLengthAMGallbladder->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMGallbladderDatafile.close();
+    ReadDataFile("linAttCoeffAMGallbladder.dat", absLengthAMGallbladder);
     
     G4MaterialPropertiesTable *mptAMGallbladder = DefineNonScintillatingMaterial(AMGallbladder, 14, rindexAMGallbladder, absLengthAMGallbladder);
     
@@ -2812,30 +1636,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMProstate->AddElement(Gd, 0.);
 
     rindexAMProstate = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMProstateDatafile;
-    rindexAMProstateDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMProstateDatafile >> wlen >> rindex;
-      	if(rindexAMProstateDatafile.eof())
-      	    break;
-      	rindexAMProstate->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMProstateDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMProstate);
     
     absLengthAMProstate = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMProstateDatafile;
-    linAttCoeffAMProstateDatafile.open("linAttCoeffAMProstate.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMProstateDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMProstateDatafile.eof())
-      	    break;
-      	absLengthAMProstate->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMProstateDatafile.close();
+    ReadDataFile("linAttCoeffAMProstate.dat", absLengthAMProstate);
     
     G4MaterialPropertiesTable *mptAMProstate = DefineNonScintillatingMaterial(AMProstate, 14, rindexAMProstate, absLengthAMProstate);
     
@@ -2857,30 +1661,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMLymph->AddElement(Gd, 0.);
 
     rindexAMLymph = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMLymphDatafile;
-    rindexAMLymphDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMLymphDatafile >> wlen >> rindex;
-      	if(rindexAMLymphDatafile.eof())
-      	    break;
-      	rindexAMLymph->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMLymphDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMLymph);
     
     absLengthAMLymph = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMLymphDatafile;
-    linAttCoeffAMLymphDatafile.open("linAttCoeffAMLymph.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMLymphDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMLymphDatafile.eof())
-      	    break;
-      	absLengthAMLymph->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMLymphDatafile.close();
+    ReadDataFile("linAttCoeffAMLymph.dat", absLengthAMLymph);
     
     G4MaterialPropertiesTable *mptAMLymph = DefineNonScintillatingMaterial(AMLymph, 14, rindexAMLymph, absLengthAMLymph);
     
@@ -2902,30 +1686,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMBreast->AddElement(Gd, 0.);
 
     rindexAMBreast = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMBreastDatafile;
-    rindexAMBreastDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMBreastDatafile >> wlen >> rindex;
-      	if(rindexAMBreastDatafile.eof())
-      	    break;
-      	rindexAMBreast->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMBreastDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMBreast);
     
     absLengthAMBreast = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMBreastDatafile;
-    linAttCoeffAMBreastDatafile.open("linAttCoeffAMBreast.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMBreastDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMBreastDatafile.eof())
-      	    break;
-      	absLengthAMBreast->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMBreastDatafile.close();
+    ReadDataFile("linAttCoeffAMBreast.dat", absLengthAMBreast);
     
     G4MaterialPropertiesTable *mptAMBreast = DefineNonScintillatingMaterial(AMBreast, 14, rindexAMBreast, absLengthAMBreast);
     
@@ -2947,30 +1711,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMAdiposeTissue->AddElement(Gd, 0.);
 
     rindexAMAdiposeTissue = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMAdiposeTissueDatafile;
-    rindexAMAdiposeTissueDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMAdiposeTissueDatafile >> wlen >> rindex;
-      	if(rindexAMAdiposeTissueDatafile.eof())
-      	    break;
-      	rindexAMAdiposeTissue->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMAdiposeTissueDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMAdiposeTissue);
     
     absLengthAMAdiposeTissue = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMAdiposeTissueDatafile;
-    linAttCoeffAMAdiposeTissueDatafile.open("linAttCoeffAMAdiposeTissue.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMAdiposeTissueDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMAdiposeTissueDatafile.eof())
-      	    break;
-      	absLengthAMAdiposeTissue->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMAdiposeTissueDatafile.close();
+    ReadDataFile("linAttCoeffAMAdiposeTissue.dat", absLengthAMAdiposeTissue);
     
     G4MaterialPropertiesTable *mptAMAdiposeTissue = DefineNonScintillatingMaterial(AMAdiposeTissue, 14, rindexAMAdiposeTissue, absLengthAMAdiposeTissue);
     
@@ -2992,30 +1736,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMLung->AddElement(Gd, 0.);
 
     rindexAMLung = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMLungDatafile;
-    rindexAMLungDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMLungDatafile >> wlen >> rindex;
-      	if(rindexAMLungDatafile.eof())
-      	    break;
-      	rindexAMLung->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMLungDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMLung);
     
     absLengthAMLung = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMLungDatafile;
-    linAttCoeffAMLungDatafile.open("linAttCoeffAMLung.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMLungDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMLungDatafile.eof())
-      	    break;
-      	absLengthAMLung->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMLungDatafile.close();
+    ReadDataFile("linAttCoeffAMLung.dat", absLengthAMLung);
     
     G4MaterialPropertiesTable *mptAMLung = DefineNonScintillatingMaterial(AMLung, 14, rindexAMLung, absLengthAMLung);
     
@@ -3037,30 +1761,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMGastroIntestinalContents->AddElement(Gd, 0.);
 
     rindexAMGastroIntestinalContents = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMGastroIntestinalContentsDatafile;
-    rindexAMGastroIntestinalContentsDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMGastroIntestinalContentsDatafile >> wlen >> rindex;
-      	if(rindexAMGastroIntestinalContentsDatafile.eof())
-      	    break;
-      	rindexAMGastroIntestinalContents->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMGastroIntestinalContentsDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMGastroIntestinalContents);
     
     absLengthAMGastroIntestinalContents = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMGastroIntestinalContentsDatafile;
-    linAttCoeffAMGastroIntestinalContentsDatafile.open("linAttCoeffAMGastroIntestinalContents.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMGastroIntestinalContentsDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMGastroIntestinalContentsDatafile.eof())
-      	    break;
-      	absLengthAMGastroIntestinalContents->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMGastroIntestinalContentsDatafile.close();
+    ReadDataFile("linAttCoeffAMGastroIntestinalContents.dat", absLengthAMGastroIntestinalContents);
     
     G4MaterialPropertiesTable *mptAMGastroIntestinalContents = DefineNonScintillatingMaterial(AMGastroIntestinalContents, 14, rindexAMGastroIntestinalContents, absLengthAMGastroIntestinalContents);
     
@@ -3082,30 +1786,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMUrine->AddElement(Gd, 0.);
 
     rindexAMUrine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMUrineDatafile;
-    rindexAMUrineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMUrineDatafile >> wlen >> rindex;
-      	if(rindexAMUrineDatafile.eof())
-      	    break;
-      	rindexAMUrine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMUrineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMUrine);
     
     absLengthAMUrine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMUrineDatafile;
-    linAttCoeffAMUrineDatafile.open("linAttCoeffAMUrine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMUrineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMUrineDatafile.eof())
-      	    break;
-      	absLengthAMUrine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMUrineDatafile.close();
+    ReadDataFile("linAttCoeffAMUrine.dat", absLengthAMUrine);
     
     G4MaterialPropertiesTable *mptAMUrine = DefineNonScintillatingMaterial(AMUrine, 14, rindexAMUrine, absLengthAMUrine);
     
@@ -3127,30 +1811,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMAir->AddElement(Gd, 0.);
 
     rindexAMAir = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMAirDatafile;
-    rindexAMAirDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMAirDatafile >> wlen >> rindex;
-      	if(rindexAMAirDatafile.eof())
-      	    break;
-      	rindexAMAir->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMAirDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMAir);
     
     absLengthAMAir = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMAirDatafile;
-    linAttCoeffAMAirDatafile.open("linAttCoeffAMAir.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMAirDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMAirDatafile.eof())
-      	    break;
-      	absLengthAMAir->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMAirDatafile.close();
+    ReadDataFile("linAttCoeffAMAir.dat", absLengthAMAir);
     
     G4MaterialPropertiesTable *mptAMAir = DefineNonScintillatingMaterial(AMAir, 14, rindexAMAir, absLengthAMAir);
     
@@ -3172,30 +1836,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMIBlood->AddElement(Gd, 0.);
 
     rindexAMIBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMIBloodDatafile;
-    rindexAMIBloodDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMIBloodDatafile >> wlen >> rindex;
-      	if(rindexAMIBloodDatafile.eof())
-      	    break;
-      	rindexAMIBlood->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMIBloodDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMIBlood);
     
     absLengthAMIBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMIBloodDatafile;
-    linAttCoeffAMIBloodDatafile.open("linAttCoeffAMIBlood.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMIBloodDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMIBloodDatafile.eof())
-      	    break;
-      	absLengthAMIBlood->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMIBloodDatafile.close();
+    ReadDataFile("linAttCoeffAMIBlood.dat", absLengthAMIBlood);
     
     G4MaterialPropertiesTable *mptAMIBlood = DefineNonScintillatingMaterial(AMIBlood, 14, rindexAMIBlood, absLengthAMIBlood);
     
@@ -3217,30 +1861,10 @@ void NSDetectorConstruction::DefineAMBioMedia()
     AMGdBlood->AddElement(Gd, GdConcentration);
 
     rindexAMGdBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAMGdBloodDatafile;
-    rindexAMGdBloodDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAMGdBloodDatafile >> wlen >> rindex;
-      	if(rindexAMGdBloodDatafile.eof())
-      	    break;
-      	rindexAMGdBlood->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAMGdBloodDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAMGdBlood);
     
     absLengthAMGdBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAMGdBloodDatafile;
-    linAttCoeffAMGdBloodDatafile.open("linAttCoeffAMGdBlood.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAMGdBloodDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAMGdBloodDatafile.eof())
-      	    break;
-      	absLengthAMGdBlood->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAMGdBloodDatafile.close();
+    ReadDataFile("linAttCoeffAMGdBlood.dat", absLengthAMGdBlood);
     
     G4MaterialPropertiesTable *mptAMGdBlood = DefineNonScintillatingMaterial(AMGdBlood, 14, rindexAMGdBlood, absLengthAMGdBlood);
 }
@@ -3264,30 +1888,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFTeeth->AddElement(I, 0.);
 
     rindexAFTeeth = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFTeethDatafile;
-    rindexAFTeethDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFTeethDatafile >> wlen >> rindex;
-      	if(rindexAFTeethDatafile.eof())
-      	    break;
-      	rindexAFTeeth->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFTeethDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFTeeth);
     
     absLengthAFTeeth = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFTeethDatafile;
-    linAttCoeffAFTeethDatafile.open("linAttCoeffAFTeeth.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFTeethDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFTeethDatafile.eof())
-      	    break;
-      	absLengthAFTeeth->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFTeethDatafile.close();
+    ReadDataFile("linAttCoeffAFTeeth.dat", absLengthAFTeeth);
     
     G4MaterialPropertiesTable *mptAFTeeth = DefineNonScintillatingMaterial(AFTeeth, 13, rindexAFTeeth, absLengthAFTeeth);
     
@@ -3308,30 +1912,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFMineralBone->AddElement(I, 0.);
 
     rindexAFMineralBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFMineralBoneDatafile;
-    rindexAFMineralBoneDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFMineralBoneDatafile >> wlen >> rindex;
-      	if(rindexAFMineralBoneDatafile.eof())
-      	    break;
-      	rindexAFMineralBone->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFMineralBoneDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFMineralBone);
     
     absLengthAFMineralBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFMineralBoneDatafile;
-    linAttCoeffAFMineralBoneDatafile.open("linAttCoeffAFMineralBone.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFMineralBoneDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFMineralBoneDatafile.eof())
-      	    break;
-      	absLengthAFMineralBone->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFMineralBoneDatafile.close();
+    ReadDataFile("linAttCoeffAFMineralBone.dat", absLengthAFMineralBone);
     
     G4MaterialPropertiesTable *mptAFMineralBone = DefineNonScintillatingMaterial(AFMineralBone, 13, rindexAFMineralBone, absLengthAFMineralBone);
     
@@ -3352,30 +1936,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFHumeriUpper->AddElement(I, 0.);
 
     rindexAFHumeriUpper = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFHumeriUpperDatafile;
-    rindexAFHumeriUpperDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFHumeriUpperDatafile >> wlen >> rindex;
-      	if(rindexAFHumeriUpperDatafile.eof())
-      	    break;
-      	rindexAFHumeriUpper->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFHumeriUpperDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFHumeriUpper);
     
     absLengthAFHumeriUpper = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFHumeriUpperDatafile;
-    linAttCoeffAFHumeriUpperDatafile.open("linAttCoeffAFHumeriUpper.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFHumeriUpperDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFHumeriUpperDatafile.eof())
-      	    break;
-      	absLengthAFHumeriUpper->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFHumeriUpperDatafile.close();
+    ReadDataFile("linAttCoeffAFHumeriUpper.dat", absLengthAFHumeriUpper);
     
     G4MaterialPropertiesTable *mptAFHumeriUpper = DefineNonScintillatingMaterial(AFHumeriUpper, 13, rindexAFHumeriUpper, absLengthAFHumeriUpper);
     
@@ -3396,30 +1960,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFHumeriLower->AddElement(I, 0.);
 
     rindexAFHumeriLower = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFHumeriLowerDatafile;
-    rindexAFHumeriLowerDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFHumeriLowerDatafile >> wlen >> rindex;
-      	if(rindexAFHumeriLowerDatafile.eof())
-      	    break;
-      	rindexAFHumeriLower->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFHumeriLowerDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFHumeriLower);
     
     absLengthAFHumeriLower = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFHumeriLowerDatafile;
-    linAttCoeffAFHumeriLowerDatafile.open("linAttCoeffAFHumeriLower.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFHumeriLowerDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFHumeriLowerDatafile.eof())
-      	    break;
-      	absLengthAFHumeriLower->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFHumeriLowerDatafile.close();
+    ReadDataFile("linAttCoeffAFHumeriLower.dat", absLengthAFHumeriLower);
     
     G4MaterialPropertiesTable *mptAFHumeriLower = DefineNonScintillatingMaterial(AFHumeriLower, 13, rindexAFHumeriLower, absLengthAFHumeriLower);
     
@@ -3440,30 +1984,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFLowerArmBone->AddElement(I, 0.);
 
     rindexAFLowerArmBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFLowerArmBoneDatafile;
-    rindexAFLowerArmBoneDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFLowerArmBoneDatafile >> wlen >> rindex;
-      	if(rindexAFLowerArmBoneDatafile.eof())
-      	    break;
-      	rindexAFLowerArmBone->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFLowerArmBoneDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFLowerArmBone);
     
     absLengthAFLowerArmBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFLowerArmBoneDatafile;
-    linAttCoeffAFLowerArmBoneDatafile.open("linAttCoeffAFLowerArmBone.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFLowerArmBoneDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFLowerArmBoneDatafile.eof())
-      	    break;
-      	absLengthAFLowerArmBone->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFLowerArmBoneDatafile.close();
+    ReadDataFile("linAttCoeffAFLowerArmBone.dat", absLengthAFLowerArmBone);
     
     G4MaterialPropertiesTable *mptAFLowerArmBone = DefineNonScintillatingMaterial(AFLowerArmBone, 13, rindexAFLowerArmBone, absLengthAFLowerArmBone);
     
@@ -3484,30 +2008,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFHandBone->AddElement(I, 0.);
 
     rindexAFHandBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFHandBoneDatafile;
-    rindexAFHandBoneDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFHandBoneDatafile >> wlen >> rindex;
-      	if(rindexAFHandBoneDatafile.eof())
-      	    break;
-      	rindexAFHandBone->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFHandBoneDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFHandBone);
     
     absLengthAFHandBone = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFHandBoneDatafile;
-    linAttCoeffAFHandBoneDatafile.open("linAttCoeffAFHandBone.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFHandBoneDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFHandBoneDatafile.eof())
-      	    break;
-      	absLengthAFHandBone->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFHandBoneDatafile.close();
+    ReadDataFile("linAttCoeffAFHandBone.dat", absLengthAFHandBone);
     
     G4MaterialPropertiesTable *mptAFHandBone = DefineNonScintillatingMaterial(AFHandBone, 13, rindexAFHandBone, absLengthAFHandBone);
     
@@ -3528,30 +2032,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFClavicles->AddElement(I, 0.);
 
     rindexAFClavicles = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFClaviclesDatafile;
-    rindexAFClaviclesDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFClaviclesDatafile >> wlen >> rindex;
-      	if(rindexAFClaviclesDatafile.eof())
-      	    break;
-      	rindexAFClavicles->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFClaviclesDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFClavicles);
     
     absLengthAFClavicles = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFClaviclesDatafile;
-    linAttCoeffAFClaviclesDatafile.open("linAttCoeffAFClavicles.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFClaviclesDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFClaviclesDatafile.eof())
-      	    break;
-      	absLengthAFClavicles->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFClaviclesDatafile.close();
+    ReadDataFile("linAttCoeffAFClavicles.dat", absLengthAFClavicles);
     
     G4MaterialPropertiesTable *mptAFClavicles = DefineNonScintillatingMaterial(AFClavicles, 13, rindexAFClavicles, absLengthAFClavicles);
     
@@ -3572,30 +2056,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFCranium->AddElement(I, 0.);
 
     rindexAFCranium = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFCraniumDatafile;
-    rindexAFCraniumDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFCraniumDatafile >> wlen >> rindex;
-      	if(rindexAFCraniumDatafile.eof())
-      	    break;
-      	rindexAFCranium->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFCraniumDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFCranium);
     
     absLengthAFCranium = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFCraniumDatafile;
-    linAttCoeffAFCraniumDatafile.open("linAttCoeffAFCranium.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFCraniumDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFCraniumDatafile.eof())
-      	    break;
-      	absLengthAFCranium->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFCraniumDatafile.close();
+    ReadDataFile("linAttCoeffAFCranium.dat", absLengthAFCranium);
     
     G4MaterialPropertiesTable *mptAFCranium = DefineNonScintillatingMaterial(AFCranium, 13, rindexAFCranium, absLengthAFCranium);
     
@@ -3616,30 +2080,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFFemoraUpper->AddElement(I, 0.);
 
     rindexAFFemoraUpper = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFFemoraUpperDatafile;
-    rindexAFFemoraUpperDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFFemoraUpperDatafile >> wlen >> rindex;
-      	if(rindexAFFemoraUpperDatafile.eof())
-      	    break;
-      	rindexAFFemoraUpper->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFFemoraUpperDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFFemoraUpper);
     
     absLengthAFFemoraUpper = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFFemoraUpperDatafile;
-    linAttCoeffAFFemoraUpperDatafile.open("linAttCoeffAFFemoraUpper.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFFemoraUpperDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFFemoraUpperDatafile.eof())
-      	    break;
-      	absLengthAFFemoraUpper->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFFemoraUpperDatafile.close();
+    ReadDataFile("linAttCoeffAFFemoraUpper.dat", absLengthAFFemoraUpper);
     
     G4MaterialPropertiesTable *mptAFFemoraUpper = DefineNonScintillatingMaterial(AFFemoraUpper, 13, rindexAFFemoraUpper, absLengthAFFemoraUpper);
     
@@ -3660,30 +2104,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFFemoraLower->AddElement(I, 0.);
 
     rindexAFFemoraLower = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFFemoraLowerDatafile;
-    rindexAFFemoraLowerDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFFemoraLowerDatafile >> wlen >> rindex;
-      	if(rindexAFFemoraLowerDatafile.eof())
-      	    break;
-      	rindexAFFemoraLower->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFFemoraLowerDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFFemoraLower);
     
     absLengthAFFemoraLower = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFFemoraLowerDatafile;
-    linAttCoeffAFFemoraLowerDatafile.open("linAttCoeffAFFemoraLower.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFFemoraLowerDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFFemoraLowerDatafile.eof())
-      	    break;
-      	absLengthAFFemoraLower->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFFemoraLowerDatafile.close();
+    ReadDataFile("linAttCoeffAFFemoraLower.dat", absLengthAFFemoraLower);
     
     G4MaterialPropertiesTable *mptAFFemoraLower = DefineNonScintillatingMaterial(AFFemoraLower, 13, rindexAFFemoraLower, absLengthAFFemoraLower);
     
@@ -3704,30 +2128,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFLowerLeg->AddElement(I, 0.);
 
     rindexAFLowerLeg = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFLowerLegDatafile;
-    rindexAFLowerLegDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFLowerLegDatafile >> wlen >> rindex;
-      	if(rindexAFLowerLegDatafile.eof())
-      	    break;
-      	rindexAFLowerLeg->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFLowerLegDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFLowerLeg);
     
     absLengthAFLowerLeg = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFLowerLegDatafile;
-    linAttCoeffAFLowerLegDatafile.open("linAttCoeffAFLowerLeg.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFLowerLegDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFLowerLegDatafile.eof())
-      	    break;
-      	absLengthAFLowerLeg->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFLowerLegDatafile.close();
+    ReadDataFile("linAttCoeffAFLowerLeg.dat", absLengthAFLowerLeg);
     
     G4MaterialPropertiesTable *mptAFLowerLeg = DefineNonScintillatingMaterial(AFLowerLeg, 13, rindexAFLowerLeg, absLengthAFLowerLeg);
     
@@ -3748,30 +2152,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFFoot->AddElement(I, 0.);
 
     rindexAFFoot = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFFootDatafile;
-    rindexAFFootDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFFootDatafile >> wlen >> rindex;
-      	if(rindexAFFootDatafile.eof())
-      	    break;
-      	rindexAFFoot->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFFootDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFFoot);
     
     absLengthAFFoot = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFFootDatafile;
-    linAttCoeffAFFootDatafile.open("linAttCoeffAFFoot.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFFootDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFFootDatafile.eof())
-      	    break;
-      	absLengthAFFoot->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFFootDatafile.close();
+    ReadDataFile("linAttCoeffAFFoot.dat", absLengthAFFoot);
     
     G4MaterialPropertiesTable *mptAFFoot = DefineNonScintillatingMaterial(AFFoot, 13, rindexAFFoot, absLengthAFFoot);
     
@@ -3792,30 +2176,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFMandible->AddElement(I, 0.);
 
     rindexAFMandible = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFMandibleDatafile;
-    rindexAFMandibleDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFMandibleDatafile >> wlen >> rindex;
-      	if(rindexAFMandibleDatafile.eof())
-      	    break;
-      	rindexAFMandible->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFMandibleDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFMandible);
     
     absLengthAFMandible = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFMandibleDatafile;
-    linAttCoeffAFMandibleDatafile.open("linAttCoeffAFMandible.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFMandibleDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFMandibleDatafile.eof())
-      	    break;
-      	absLengthAFMandible->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFMandibleDatafile.close();
+    ReadDataFile("linAttCoeffAFMandible.dat", absLengthAFMandible);
     
     G4MaterialPropertiesTable *mptAFMandible = DefineNonScintillatingMaterial(AFMandible, 13, rindexAFMandible, absLengthAFMandible);
     
@@ -3836,30 +2200,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFPelvis->AddElement(I, 0.);
 
     rindexAFPelvis = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFPelvisDatafile;
-    rindexAFPelvisDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFPelvisDatafile >> wlen >> rindex;
-      	if(rindexAFPelvisDatafile.eof())
-      	    break;
-      	rindexAFPelvis->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFPelvisDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFPelvis);
     
     absLengthAFPelvis = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFPelvisDatafile;
-    linAttCoeffAFPelvisDatafile.open("linAttCoeffAFPelvis.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFPelvisDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFPelvisDatafile.eof())
-      	    break;
-      	absLengthAFPelvis->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFPelvisDatafile.close();
+    ReadDataFile("linAttCoeffAFPelvis.dat", absLengthAFPelvis);
     
     G4MaterialPropertiesTable *mptAFPelvis = DefineNonScintillatingMaterial(AFPelvis, 13, rindexAFPelvis, absLengthAFPelvis);
     
@@ -3880,30 +2224,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFRibs->AddElement(I, 0.);
 
     rindexAFRibs = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFRibsDatafile;
-    rindexAFRibsDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFRibsDatafile >> wlen >> rindex;
-      	if(rindexAFRibsDatafile.eof())
-      	    break;
-      	rindexAFRibs->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFRibsDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFRibs);
     
     absLengthAFRibs = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFRibsDatafile;
-    linAttCoeffAFRibsDatafile.open("linAttCoeffAFRibs.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFRibsDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFRibsDatafile.eof())
-      	    break;
-      	absLengthAFRibs->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFRibsDatafile.close();
+    ReadDataFile("linAttCoeffAFRibs.dat", absLengthAFRibs);
     
     G4MaterialPropertiesTable *mptAFRibs = DefineNonScintillatingMaterial(AFRibs, 13, rindexAFRibs, absLengthAFRibs);
     
@@ -3924,30 +2248,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFScapulae->AddElement(I, 0.);
 
     rindexAFScapulae = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFScapulaeDatafile;
-    rindexAFScapulaeDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFScapulaeDatafile >> wlen >> rindex;
-      	if(rindexAFScapulaeDatafile.eof())
-      	    break;
-      	rindexAFScapulae->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFScapulaeDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFScapulae);
     
     absLengthAFScapulae = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFScapulaeDatafile;
-    linAttCoeffAFScapulaeDatafile.open("linAttCoeffAFScapulae.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFScapulaeDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFScapulaeDatafile.eof())
-      	    break;
-      	absLengthAFScapulae->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFScapulaeDatafile.close();
+    ReadDataFile("linAttCoeffAFScapulae.dat", absLengthAFScapulae);
     
     G4MaterialPropertiesTable *mptAFScapulae = DefineNonScintillatingMaterial(AFScapulae, 13, rindexAFScapulae, absLengthAFScapulae);
     
@@ -3968,30 +2272,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFCervicalSpine->AddElement(I, 0.);
 
     rindexAFCervicalSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFCervicalSpineDatafile;
-    rindexAFCervicalSpineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFCervicalSpineDatafile >> wlen >> rindex;
-      	if(rindexAFCervicalSpineDatafile.eof())
-      	    break;
-      	rindexAFCervicalSpine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFCervicalSpineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFCervicalSpine);
     
     absLengthAFCervicalSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFCervicalSpineDatafile;
-    linAttCoeffAFCervicalSpineDatafile.open("linAttCoeffAFCervicalSpine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFCervicalSpineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFCervicalSpineDatafile.eof())
-      	    break;
-      	absLengthAFCervicalSpine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFCervicalSpineDatafile.close();
+    ReadDataFile("linAttCoeffAFCervicalSpine.dat", absLengthAFCervicalSpine);
     
     G4MaterialPropertiesTable *mptAFCervicalSpine = DefineNonScintillatingMaterial(AFCervicalSpine, 13, rindexAFCervicalSpine, absLengthAFCervicalSpine);
     
@@ -4012,30 +2296,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFThoracicSpine->AddElement(I, 0.);
 
     rindexAFThoracicSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFThoracicSpineDatafile;
-    rindexAFThoracicSpineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFThoracicSpineDatafile >> wlen >> rindex;
-      	if(rindexAFThoracicSpineDatafile.eof())
-      	    break;
-      	rindexAFThoracicSpine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFThoracicSpineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFThoracicSpine);
     
     absLengthAFThoracicSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFThoracicSpineDatafile;
-    linAttCoeffAFThoracicSpineDatafile.open("linAttCoeffAFThoracicSpine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFThoracicSpineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFThoracicSpineDatafile.eof())
-      	    break;
-      	absLengthAFThoracicSpine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFThoracicSpineDatafile.close();
+    ReadDataFile("linAttCoeffAFThoracicSpine.dat", absLengthAFThoracicSpine);
     
     G4MaterialPropertiesTable *mptAFThoracicSpine = DefineNonScintillatingMaterial(AFThoracicSpine, 13, rindexAFThoracicSpine, absLengthAFThoracicSpine);
     
@@ -4056,30 +2320,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFLumbarSpine->AddElement(I, 0.);
 
     rindexAFLumbarSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFLumbarSpineDatafile;
-    rindexAFLumbarSpineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFLumbarSpineDatafile >> wlen >> rindex;
-      	if(rindexAFLumbarSpineDatafile.eof())
-      	    break;
-      	rindexAFLumbarSpine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFLumbarSpineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFLumbarSpine);
     
     absLengthAFLumbarSpine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFLumbarSpineDatafile;
-    linAttCoeffAFLumbarSpineDatafile.open("linAttCoeffAFLumbarSpine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFLumbarSpineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFLumbarSpineDatafile.eof())
-      	    break;
-      	absLengthAFLumbarSpine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFLumbarSpineDatafile.close();
+    ReadDataFile("linAttCoeffAFLumbarSpine.dat", absLengthAFLumbarSpine);
     
     G4MaterialPropertiesTable *mptAFLumbarSpine = DefineNonScintillatingMaterial(AFLumbarSpine, 13, rindexAFLumbarSpine, absLengthAFLumbarSpine);
     
@@ -4100,30 +2344,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFSacrum->AddElement(I, 0.);
 
     rindexAFSacrum = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFSacrumDatafile;
-    rindexAFSacrumDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFSacrumDatafile >> wlen >> rindex;
-      	if(rindexAFSacrumDatafile.eof())
-      	    break;
-      	rindexAFSacrum->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFSacrumDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFSacrum);
     
     absLengthAFSacrum = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFSacrumDatafile;
-    linAttCoeffAFSacrumDatafile.open("linAttCoeffAFSacrum.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFSacrumDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFSacrumDatafile.eof())
-      	    break;
-      	absLengthAFSacrum->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFSacrumDatafile.close();
+    ReadDataFile("linAttCoeffAFSacrum.dat", absLengthAFSacrum);
     
     G4MaterialPropertiesTable *mptAFSacrum = DefineNonScintillatingMaterial(AFSacrum, 13, rindexAFSacrum, absLengthAFSacrum);
     
@@ -4144,30 +2368,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFSternum->AddElement(I, 0.);
 
     rindexAFSternum = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFSternumDatafile;
-    rindexAFSternumDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFSternumDatafile >> wlen >> rindex;
-      	if(rindexAFSternumDatafile.eof())
-      	    break;
-      	rindexAFSternum->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFSternumDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFSternum);
     
     absLengthAFSternum = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFSternumDatafile;
-    linAttCoeffAFSternumDatafile.open("linAttCoeffAFSternum.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFSternumDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFSternumDatafile.eof())
-      	    break;
-      	absLengthAFSternum->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFSternumDatafile.close();
+    ReadDataFile("linAttCoeffAFSternum.dat", absLengthAFSternum);
     
     G4MaterialPropertiesTable *mptAFSternum = DefineNonScintillatingMaterial(AFSternum, 13, rindexAFSternum, absLengthAFSternum);
     
@@ -4188,30 +2392,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFHumeriFemoraUpperMedullaryCavity->AddElement(I, 0.);
 
     rindexAFHumeriFemoraUpperMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFHumeriFemoraUpperMedullaryCavityDatafile;
-    rindexAFHumeriFemoraUpperMedullaryCavityDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFHumeriFemoraUpperMedullaryCavityDatafile >> wlen >> rindex;
-      	if(rindexAFHumeriFemoraUpperMedullaryCavityDatafile.eof())
-      	    break;
-      	rindexAFHumeriFemoraUpperMedullaryCavity->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFHumeriFemoraUpperMedullaryCavityDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFHumeriFemoraUpperMedullaryCavity);
     
     absLengthAFHumeriFemoraUpperMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFHumeriFemoraUpperMedullaryCavityDatafile;
-    linAttCoeffAFHumeriFemoraUpperMedullaryCavityDatafile.open("linAttCoeffAFHumeriFemoraUpperMedullaryCavity.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFHumeriFemoraUpperMedullaryCavityDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFHumeriFemoraUpperMedullaryCavityDatafile.eof())
-      	    break;
-      	absLengthAFHumeriFemoraUpperMedullaryCavity->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFHumeriFemoraUpperMedullaryCavityDatafile.close();
+    ReadDataFile("linAttCoeffAFHumeriFemoraUpperMedullaryCavity.dat", absLengthAFHumeriFemoraUpperMedullaryCavity);
     
     G4MaterialPropertiesTable *mptAFHumeriFemoraUpperMedullaryCavity = DefineNonScintillatingMaterial(AFHumeriFemoraUpperMedullaryCavity, 13, rindexAFHumeriFemoraUpperMedullaryCavity, absLengthAFHumeriFemoraUpperMedullaryCavity);
     
@@ -4232,30 +2416,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFHumeriFemoraLowerMedullaryCavity->AddElement(I, 0.);
 
     rindexAFHumeriFemoraLowerMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFHumeriFemoraLowerMedullaryCavityDatafile;
-    rindexAFHumeriFemoraLowerMedullaryCavityDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFHumeriFemoraLowerMedullaryCavityDatafile >> wlen >> rindex;
-      	if(rindexAFHumeriFemoraLowerMedullaryCavityDatafile.eof())
-      	    break;
-      	rindexAFHumeriFemoraLowerMedullaryCavity->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFHumeriFemoraLowerMedullaryCavityDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFHumeriFemoraLowerMedullaryCavity);
     
     absLengthAFHumeriFemoraLowerMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFHumeriFemoraLowerMedullaryCavityDatafile;
-    linAttCoeffAFHumeriFemoraLowerMedullaryCavityDatafile.open("linAttCoeffAFHumeriFemoraLowerMedullaryCavity.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFHumeriFemoraLowerMedullaryCavityDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFHumeriFemoraLowerMedullaryCavityDatafile.eof())
-      	    break;
-      	absLengthAFHumeriFemoraLowerMedullaryCavity->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFHumeriFemoraLowerMedullaryCavityDatafile.close();
+    ReadDataFile("linAttCoeffAFHumeriFemoraLowerMedullaryCavity.dat", absLengthAFHumeriFemoraLowerMedullaryCavity);
     
     G4MaterialPropertiesTable *mptAFHumeriFemoraLowerMedullaryCavity = DefineNonScintillatingMaterial(AFHumeriFemoraLowerMedullaryCavity, 13, rindexAFHumeriFemoraLowerMedullaryCavity, absLengthAFHumeriFemoraLowerMedullaryCavity);
     
@@ -4276,30 +2440,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFLowerArmMedullaryCavity->AddElement(I, 0.);
 
     rindexAFLowerArmMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFLowerArmMedullaryCavityDatafile;
-    rindexAFLowerArmMedullaryCavityDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFLowerArmMedullaryCavityDatafile >> wlen >> rindex;
-      	if(rindexAFLowerArmMedullaryCavityDatafile.eof())
-      	    break;
-      	rindexAFLowerArmMedullaryCavity->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFLowerArmMedullaryCavityDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFLowerArmMedullaryCavity);
     
     absLengthAFLowerArmMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFLowerArmMedullaryCavityDatafile;
-    linAttCoeffAFLowerArmMedullaryCavityDatafile.open("linAttCoeffAFLowerArmMedullaryCavity.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFLowerArmMedullaryCavityDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFLowerArmMedullaryCavityDatafile.eof())
-      	    break;
-      	absLengthAFLowerArmMedullaryCavity->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFLowerArmMedullaryCavityDatafile.close();
+    ReadDataFile("linAttCoeffAFLowerArmMedullaryCavity.dat", absLengthAFLowerArmMedullaryCavity);
     
     G4MaterialPropertiesTable *mptAFLowerArmMedullaryCavity = DefineNonScintillatingMaterial(AFLowerArmMedullaryCavity, 13, rindexAFLowerArmMedullaryCavity, absLengthAFLowerArmMedullaryCavity);
     
@@ -4320,30 +2464,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFLowerLegMedullaryCavity->AddElement(I, 0.);
 
     rindexAFLowerLegMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFLowerLegMedullaryCavityDatafile;
-    rindexAFLowerLegMedullaryCavityDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFLowerLegMedullaryCavityDatafile >> wlen >> rindex;
-      	if(rindexAFLowerLegMedullaryCavityDatafile.eof())
-      	    break;
-      	rindexAFLowerLegMedullaryCavity->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFLowerLegMedullaryCavityDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFLowerLegMedullaryCavity);
     
     absLengthAFLowerLegMedullaryCavity = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFLowerLegMedullaryCavityDatafile;
-    linAttCoeffAFLowerLegMedullaryCavityDatafile.open("linAttCoeffAFLowerLegMedullaryCavity.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFLowerLegMedullaryCavityDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFLowerLegMedullaryCavityDatafile.eof())
-      	    break;
-      	absLengthAFLowerLegMedullaryCavity->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFLowerLegMedullaryCavityDatafile.close();
+    ReadDataFile("linAttCoeffAFLowerLegMedullaryCavity.dat", absLengthAFLowerLegMedullaryCavity);
     
     G4MaterialPropertiesTable *mptAFLowerLegMedullaryCavity = DefineNonScintillatingMaterial(AFLowerLegMedullaryCavity, 13, rindexAFLowerLegMedullaryCavity, absLengthAFLowerLegMedullaryCavity);
     
@@ -4364,30 +2488,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFCartilage->AddElement(I, 0.);
 
     rindexAFCartilage = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFCartilageDatafile;
-    rindexAFCartilageDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFCartilageDatafile >> wlen >> rindex;
-      	if(rindexAFCartilageDatafile.eof())
-      	    break;
-      	rindexAFCartilage->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFCartilageDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFCartilage);
     
     absLengthAFCartilage = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFCartilageDatafile;
-    linAttCoeffAFCartilageDatafile.open("linAttCoeffAFCartilage.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFCartilageDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFCartilageDatafile.eof())
-      	    break;
-      	absLengthAFCartilage->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFCartilageDatafile.close();
+    ReadDataFile("linAttCoeffAFCartilage.dat", absLengthAFCartilage);
     
     G4MaterialPropertiesTable *mptAFCartilage = DefineNonScintillatingMaterial(AFCartilage, 13, rindexAFCartilage, absLengthAFCartilage);
     
@@ -4408,30 +2512,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFSkin->AddElement(I, 0.);
 
     rindexAFSkin = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFSkinDatafile;
-    rindexAFSkinDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFSkinDatafile >> wlen >> rindex;
-      	if(rindexAFSkinDatafile.eof())
-      	    break;
-      	rindexAFSkin->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFSkinDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFSkin);
     
     absLengthAFSkin = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFSkinDatafile;
-    linAttCoeffAFSkinDatafile.open("linAttCoeffAFSkin.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFSkinDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFSkinDatafile.eof())
-      	    break;
-      	absLengthAFSkin->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFSkinDatafile.close();
+    ReadDataFile("linAttCoeffAFSkin.dat", absLengthAFSkin);
     
     G4MaterialPropertiesTable *mptAFSkin = DefineNonScintillatingMaterial(AFSkin, 13, rindexAFSkin, absLengthAFSkin);
     
@@ -4452,30 +2536,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFBlood->AddElement(I, 0.);
 
     rindexAFBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFBloodDatafile;
-    rindexAFBloodDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFBloodDatafile >> wlen >> rindex;
-      	if(rindexAFBloodDatafile.eof())
-      	    break;
-      	rindexAFBlood->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFBloodDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFBlood);
     
     absLengthAFBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFBloodDatafile;
-    linAttCoeffAFBloodDatafile.open("linAttCoeffAFBlood.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFBloodDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFBloodDatafile.eof())
-      	    break;
-      	absLengthAFBlood->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFBloodDatafile.close();
+    ReadDataFile("linAttCoeffAFBlood.dat", absLengthAFBlood);
     
     G4MaterialPropertiesTable *mptAFBlood = DefineNonScintillatingMaterial(AFBlood, 13, rindexAFBlood, absLengthAFBlood);
     
@@ -4496,30 +2560,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFMuscle->AddElement(I, 0.);
 
     rindexAFMuscle = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFMuscleDatafile;
-    rindexAFMuscleDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFMuscleDatafile >> wlen >> rindex;
-      	if(rindexAFMuscleDatafile.eof())
-      	    break;
-      	rindexAFMuscle->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFMuscleDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFMuscle);
     
     absLengthAFMuscle = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFMuscleDatafile;
-    linAttCoeffAFMuscleDatafile.open("linAttCoeffAFMuscle.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFMuscleDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFMuscleDatafile.eof())
-      	    break;
-      	absLengthAFMuscle->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFMuscleDatafile.close();
+    ReadDataFile("linAttCoeffAFMuscle.dat", absLengthAFMuscle);
     
     G4MaterialPropertiesTable *mptAFMuscle = DefineNonScintillatingMaterial(AFMuscle, 13, rindexAFMuscle, absLengthAFMuscle);
     
@@ -4540,30 +2584,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFLiver->AddElement(I, 0.);
 
     rindexAFLiver = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFLiverDatafile;
-    rindexAFLiverDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFLiverDatafile >> wlen >> rindex;
-      	if(rindexAFLiverDatafile.eof())
-      	    break;
-      	rindexAFLiver->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFLiverDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFLiver);
     
     absLengthAFLiver = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFLiverDatafile;
-    linAttCoeffAFLiverDatafile.open("linAttCoeffAFLiver.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFLiverDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFLiverDatafile.eof())
-      	    break;
-      	absLengthAFLiver->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFLiverDatafile.close();
+    ReadDataFile("linAttCoeffAFLiver.dat", absLengthAFLiver);
     
     G4MaterialPropertiesTable *mptAFLiver = DefineNonScintillatingMaterial(AFLiver, 13, rindexAFLiver, absLengthAFLiver);
     
@@ -4584,30 +2608,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFPancreas->AddElement(I, 0.);
 
     rindexAFPancreas = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFPancreasDatafile;
-    rindexAFPancreasDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFPancreasDatafile >> wlen >> rindex;
-      	if(rindexAFPancreasDatafile.eof())
-      	    break;
-      	rindexAFPancreas->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFPancreasDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFPancreas);
     
     absLengthAFPancreas = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFPancreasDatafile;
-    linAttCoeffAFPancreasDatafile.open("linAttCoeffAFPancreas.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFPancreasDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFPancreasDatafile.eof())
-      	    break;
-      	absLengthAFPancreas->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFPancreasDatafile.close();
+    ReadDataFile("linAttCoeffAFPancreas.dat", absLengthAFPancreas);
     
     G4MaterialPropertiesTable *mptAFPancreas = DefineNonScintillatingMaterial(AFPancreas, 13, rindexAFPancreas, absLengthAFPancreas);
     
@@ -4628,30 +2632,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFBrain->AddElement(I, 0.);
 
     rindexAFBrain = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFBrainDatafile;
-    rindexAFBrainDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFBrainDatafile >> wlen >> rindex;
-      	if(rindexAFBrainDatafile.eof())
-      	    break;
-      	rindexAFBrain->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFBrainDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFBrain);
     
     absLengthAFBrain = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFBrainDatafile;
-    linAttCoeffAFBrainDatafile.open("linAttCoeffAFBrain.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFBrainDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFBrainDatafile.eof())
-      	    break;
-      	absLengthAFBrain->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFBrainDatafile.close();
+    ReadDataFile("linAttCoeffAFBrain.dat", absLengthAFBrain);
     
     G4MaterialPropertiesTable *mptAFBrain = DefineNonScintillatingMaterial(AFBrain, 13, rindexAFBrain, absLengthAFBrain);
     
@@ -4672,30 +2656,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFHeart->AddElement(I, 0.);
 
     rindexAFHeart = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFHeartDatafile;
-    rindexAFHeartDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFHeartDatafile >> wlen >> rindex;
-      	if(rindexAFHeartDatafile.eof())
-      	    break;
-      	rindexAFHeart->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFHeartDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFHeart);
     
     absLengthAFHeart = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFHeartDatafile;
-    linAttCoeffAFHeartDatafile.open("linAttCoeffAFHeart.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFHeartDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFHeartDatafile.eof())
-      	    break;
-      	absLengthAFHeart->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFHeartDatafile.close();
+    ReadDataFile("linAttCoeffAFHeart.dat", absLengthAFHeart);
     
     G4MaterialPropertiesTable *mptAFHeart = DefineNonScintillatingMaterial(AFHeart, 13, rindexAFHeart, absLengthAFHeart);
     
@@ -4716,30 +2680,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFEyes->AddElement(I, 0.);
 
     rindexAFEyes = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFEyesDatafile;
-    rindexAFEyesDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFEyesDatafile >> wlen >> rindex;
-      	if(rindexAFEyesDatafile.eof())
-      	    break;
-      	rindexAFEyes->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFEyesDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFEyes);
     
     absLengthAFEyes = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFEyesDatafile;
-    linAttCoeffAFEyesDatafile.open("linAttCoeffAFEyes.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFEyesDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFEyesDatafile.eof())
-      	    break;
-      	absLengthAFEyes->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFEyesDatafile.close();
+    ReadDataFile("linAttCoeffAFEyes.dat", absLengthAFEyes);
     
     G4MaterialPropertiesTable *mptAFEyes = DefineNonScintillatingMaterial(AFEyes, 13, rindexAFEyes, absLengthAFEyes);
     
@@ -4760,30 +2704,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFKidneys->AddElement(I, 0.);
 
     rindexAFKidneys = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFKidneysDatafile;
-    rindexAFKidneysDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFKidneysDatafile >> wlen >> rindex;
-      	if(rindexAFKidneysDatafile.eof())
-      	    break;
-      	rindexAFKidneys->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFKidneysDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFKidneys);
     
     absLengthAFKidneys = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFKidneysDatafile;
-    linAttCoeffAFKidneysDatafile.open("linAttCoeffAFKidneys.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFKidneysDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFKidneysDatafile.eof())
-      	    break;
-      	absLengthAFKidneys->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFKidneysDatafile.close();
+    ReadDataFile("linAttCoeffAFKidneys.dat", absLengthAFKidneys);
     
     G4MaterialPropertiesTable *mptAFKidneys = DefineNonScintillatingMaterial(AFKidneys, 13, rindexAFKidneys, absLengthAFKidneys);
     
@@ -4804,30 +2728,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFStomach->AddElement(I, 0.);
 
     rindexAFStomach = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFStomachDatafile;
-    rindexAFStomachDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFStomachDatafile >> wlen >> rindex;
-      	if(rindexAFStomachDatafile.eof())
-      	    break;
-      	rindexAFStomach->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFStomachDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFStomach);
     
     absLengthAFStomach = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFStomachDatafile;
-    linAttCoeffAFStomachDatafile.open("linAttCoeffAFStomach.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFStomachDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFStomachDatafile.eof())
-      	    break;
-      	absLengthAFStomach->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFStomachDatafile.close();
+    ReadDataFile("linAttCoeffAFStomach.dat", absLengthAFStomach);
     
     G4MaterialPropertiesTable *mptAFStomach = DefineNonScintillatingMaterial(AFStomach, 13, rindexAFStomach, absLengthAFStomach);
     
@@ -4848,30 +2752,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFSmallIntestine->AddElement(I, 0.);
 
     rindexAFSmallIntestine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFSmallIntestineDatafile;
-    rindexAFSmallIntestineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFSmallIntestineDatafile >> wlen >> rindex;
-      	if(rindexAFSmallIntestineDatafile.eof())
-      	    break;
-      	rindexAFSmallIntestine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFSmallIntestineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFSmallIntestine);
     
     absLengthAFSmallIntestine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFSmallIntestineDatafile;
-    linAttCoeffAFSmallIntestineDatafile.open("linAttCoeffAFSmallIntestine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFSmallIntestineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFSmallIntestineDatafile.eof())
-      	    break;
-      	absLengthAFSmallIntestine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFSmallIntestineDatafile.close();
+    ReadDataFile("linAttCoeffAFSmallIntestine.dat", absLengthAFSmallIntestine);
     
     G4MaterialPropertiesTable *mptAFSmallIntestine = DefineNonScintillatingMaterial(AFSmallIntestine, 13, rindexAFSmallIntestine, absLengthAFSmallIntestine);
     
@@ -4892,30 +2776,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFLargeIntestine->AddElement(I, 0.);
 
     rindexAFLargeIntestine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFLargeIntestineDatafile;
-    rindexAFLargeIntestineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFLargeIntestineDatafile >> wlen >> rindex;
-      	if(rindexAFLargeIntestineDatafile.eof())
-      	    break;
-      	rindexAFLargeIntestine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFLargeIntestineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFLargeIntestine);
     
     absLengthAFLargeIntestine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFLargeIntestineDatafile;
-    linAttCoeffAFLargeIntestineDatafile.open("linAttCoeffAFLargeIntestine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFLargeIntestineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFLargeIntestineDatafile.eof())
-      	    break;
-      	absLengthAFLargeIntestine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFLargeIntestineDatafile.close();
+    ReadDataFile("linAttCoeffAFLargeIntestine.dat", absLengthAFLargeIntestine);
     
     G4MaterialPropertiesTable *mptAFLargeIntestine = DefineNonScintillatingMaterial(AFLargeIntestine, 13, rindexAFLargeIntestine, absLengthAFLargeIntestine);
     
@@ -4936,30 +2800,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFSpleen->AddElement(I, 0.);
 
     rindexAFSpleen = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFSpleenDatafile;
-    rindexAFSpleenDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFSpleenDatafile >> wlen >> rindex;
-      	if(rindexAFSpleenDatafile.eof())
-      	    break;
-      	rindexAFSpleen->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFSpleenDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFSpleen);
     
     absLengthAFSpleen = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFSpleenDatafile;
-    linAttCoeffAFSpleenDatafile.open("linAttCoeffAFSpleen.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFSpleenDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFSpleenDatafile.eof())
-      	    break;
-      	absLengthAFSpleen->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFSpleenDatafile.close();
+    ReadDataFile("linAttCoeffAFSpleen.dat", absLengthAFSpleen);
     
     G4MaterialPropertiesTable *mptAFSpleen = DefineNonScintillatingMaterial(AFSpleen, 13, rindexAFSpleen, absLengthAFSpleen);
     
@@ -4980,30 +2824,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFThyroid->AddElement(I, 0.001);
 
     rindexAFThyroid = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFThyroidDatafile;
-    rindexAFThyroidDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFThyroidDatafile >> wlen >> rindex;
-      	if(rindexAFThyroidDatafile.eof())
-      	    break;
-      	rindexAFThyroid->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFThyroidDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFThyroid);
     
     absLengthAFThyroid = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFThyroidDatafile;
-    linAttCoeffAFThyroidDatafile.open("linAttCoeffAFThyroid.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFThyroidDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFThyroidDatafile.eof())
-      	    break;
-      	absLengthAFThyroid->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFThyroidDatafile.close();
+    ReadDataFile("linAttCoeffAFThyroid.dat", absLengthAFThyroid);
     
     G4MaterialPropertiesTable *mptAFThyroid = DefineNonScintillatingMaterial(AFThyroid, 13, rindexAFThyroid, absLengthAFThyroid);
     
@@ -5024,30 +2848,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFUrinaryBladder->AddElement(I, 0.);
 
     rindexAFUrinaryBladder = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFUrinaryBladderDatafile;
-    rindexAFUrinaryBladderDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFUrinaryBladderDatafile >> wlen >> rindex;
-      	if(rindexAFUrinaryBladderDatafile.eof())
-      	    break;
-      	rindexAFUrinaryBladder->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFUrinaryBladderDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFUrinaryBladder);
     
     absLengthAFUrinaryBladder = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFUrinaryBladderDatafile;
-    linAttCoeffAFUrinaryBladderDatafile.open("linAttCoeffAFUrinaryBladder.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFUrinaryBladderDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFUrinaryBladderDatafile.eof())
-      	    break;
-      	absLengthAFUrinaryBladder->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFUrinaryBladderDatafile.close();
+    ReadDataFile("linAttCoeffAFUrinaryBladder.dat", absLengthAFUrinaryBladder);
     
     G4MaterialPropertiesTable *mptAFUrinaryBladder = DefineNonScintillatingMaterial(AFUrinaryBladder, 13, rindexAFUrinaryBladder, absLengthAFUrinaryBladder);
     
@@ -5068,30 +2872,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFOvaries->AddElement(I, 0.);
 
     rindexAFOvaries = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFOvariesDatafile;
-    rindexAFOvariesDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFOvariesDatafile >> wlen >> rindex;
-      	if(rindexAFOvariesDatafile.eof())
-      	    break;
-      	rindexAFOvaries->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFOvariesDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFOvaries);
     
     absLengthAFOvaries = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFOvariesDatafile;
-    linAttCoeffAFOvariesDatafile.open("linAttCoeffAFOvaries.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFOvariesDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFOvariesDatafile.eof())
-      	    break;
-      	absLengthAFOvaries->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFOvariesDatafile.close();
+    ReadDataFile("linAttCoeffAFOvaries.dat", absLengthAFOvaries);
     
     G4MaterialPropertiesTable *mptAFOvaries = DefineNonScintillatingMaterial(AFOvaries, 13, rindexAFOvaries, absLengthAFOvaries);
     
@@ -5112,30 +2896,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFAdrenals->AddElement(I, 0.);
 
     rindexAFAdrenals = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFAdrenalsDatafile;
-    rindexAFAdrenalsDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFAdrenalsDatafile >> wlen >> rindex;
-      	if(rindexAFAdrenalsDatafile.eof())
-      	    break;
-      	rindexAFAdrenals->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFAdrenalsDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFAdrenals);
     
     absLengthAFAdrenals = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFAdrenalsDatafile;
-    linAttCoeffAFAdrenalsDatafile.open("linAttCoeffAFAdrenals.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFAdrenalsDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFAdrenalsDatafile.eof())
-      	    break;
-      	absLengthAFAdrenals->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFAdrenalsDatafile.close();
+    ReadDataFile("linAttCoeffAFAdrenals.dat", absLengthAFAdrenals);
     
     G4MaterialPropertiesTable *mptAFAdrenals = DefineNonScintillatingMaterial(AFAdrenals, 13, rindexAFAdrenals, absLengthAFAdrenals);
     
@@ -5156,30 +2920,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFOesophagus->AddElement(I, 0.);
 
     rindexAFOesophagus = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFOesophagusDatafile;
-    rindexAFOesophagusDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFOesophagusDatafile >> wlen >> rindex;
-      	if(rindexAFOesophagusDatafile.eof())
-      	    break;
-      	rindexAFOesophagus->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFOesophagusDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFOesophagus);
     
     absLengthAFOesophagus = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFOesophagusDatafile;
-    linAttCoeffAFOesophagusDatafile.open("linAttCoeffAFOesophagus.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFOesophagusDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFOesophagusDatafile.eof())
-      	    break;
-      	absLengthAFOesophagus->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFOesophagusDatafile.close();
+    ReadDataFile("linAttCoeffAFOesophagus.dat", absLengthAFOesophagus);
     
     G4MaterialPropertiesTable *mptAFOesophagus = DefineNonScintillatingMaterial(AFOesophagus, 13, rindexAFOesophagus, absLengthAFOesophagus);
     
@@ -5200,30 +2944,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFGallbladder->AddElement(I, 0.);
 
     rindexAFGallbladder = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFGallbladderDatafile;
-    rindexAFGallbladderDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFGallbladderDatafile >> wlen >> rindex;
-      	if(rindexAFGallbladderDatafile.eof())
-      	    break;
-      	rindexAFGallbladder->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFGallbladderDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFGallbladder);
     
     absLengthAFGallbladder = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFGallbladderDatafile;
-    linAttCoeffAFGallbladderDatafile.open("linAttCoeffAFGallbladder.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFGallbladderDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFGallbladderDatafile.eof())
-      	    break;
-      	absLengthAFGallbladder->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFGallbladderDatafile.close();
+    ReadDataFile("linAttCoeffAFGallbladder.dat", absLengthAFGallbladder);
     
     G4MaterialPropertiesTable *mptAFGallbladder = DefineNonScintillatingMaterial(AFGallbladder, 13, rindexAFGallbladder, absLengthAFGallbladder);
     
@@ -5244,30 +2968,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFUterus->AddElement(I, 0.);
 
     rindexAFUterus = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFUterusDatafile;
-    rindexAFUterusDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFUterusDatafile >> wlen >> rindex;
-      	if(rindexAFUterusDatafile.eof())
-      	    break;
-      	rindexAFUterus->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFUterusDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFUterus);
     
     absLengthAFUterus = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFUterusDatafile;
-    linAttCoeffAFUterusDatafile.open("linAttCoeffAFUterus.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFUterusDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFUterusDatafile.eof())
-      	    break;
-      	absLengthAFUterus->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFUterusDatafile.close();
+    ReadDataFile("linAttCoeffAFUterus.dat", absLengthAFUterus);
     
     G4MaterialPropertiesTable *mptAFUterus = DefineNonScintillatingMaterial(AFUterus, 13, rindexAFUterus, absLengthAFUterus);
     
@@ -5288,30 +2992,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFLymph->AddElement(I, 0.);
 
     rindexAFLymph = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFLymphDatafile;
-    rindexAFLymphDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFLymphDatafile >> wlen >> rindex;
-      	if(rindexAFLymphDatafile.eof())
-      	    break;
-      	rindexAFLymph->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFLymphDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFLymph);
     
     absLengthAFLymph = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFLymphDatafile;
-    linAttCoeffAFLymphDatafile.open("linAttCoeffAFLymph.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFLymphDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFLymphDatafile.eof())
-      	    break;
-      	absLengthAFLymph->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFLymphDatafile.close();
+    ReadDataFile("linAttCoeffAFLymph.dat", absLengthAFLymph);
     
     G4MaterialPropertiesTable *mptAFLymph = DefineNonScintillatingMaterial(AFLymph, 13, rindexAFLymph, absLengthAFLymph);
     
@@ -5332,30 +3016,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFBreast->AddElement(I, 0.);
 
     rindexAFBreast = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFBreastDatafile;
-    rindexAFBreastDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFBreastDatafile >> wlen >> rindex;
-      	if(rindexAFBreastDatafile.eof())
-      	    break;
-      	rindexAFBreast->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFBreastDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFBreast);
     
     absLengthAFBreast = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFBreastDatafile;
-    linAttCoeffAFBreastDatafile.open("linAttCoeffAFBreast.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFBreastDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFBreastDatafile.eof())
-      	    break;
-      	absLengthAFBreast->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFBreastDatafile.close();
+    ReadDataFile("linAttCoeffAFBreast.dat", absLengthAFBreast);
     
     G4MaterialPropertiesTable *mptAFBreast = DefineNonScintillatingMaterial(AFBreast, 13, rindexAFBreast, absLengthAFBreast);
     
@@ -5376,30 +3040,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFAdiposeTissue->AddElement(I, 0.);
 
     rindexAFAdiposeTissue = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFAdiposeTissueDatafile;
-    rindexAFAdiposeTissueDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFAdiposeTissueDatafile >> wlen >> rindex;
-      	if(rindexAFAdiposeTissueDatafile.eof())
-      	    break;
-      	rindexAFAdiposeTissue->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFAdiposeTissueDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFAdiposeTissue);
     
     absLengthAFAdiposeTissue = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFAdiposeTissueDatafile;
-    linAttCoeffAFAdiposeTissueDatafile.open("linAttCoeffAFAdiposeTissue.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFAdiposeTissueDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFAdiposeTissueDatafile.eof())
-      	    break;
-      	absLengthAFAdiposeTissue->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFAdiposeTissueDatafile.close();
+    ReadDataFile("linAttCoeffAFAdiposeTissue.dat", absLengthAFAdiposeTissue);
     
     G4MaterialPropertiesTable *mptAFAdiposeTissue = DefineNonScintillatingMaterial(AFAdiposeTissue, 13, rindexAFAdiposeTissue, absLengthAFAdiposeTissue);
     
@@ -5420,30 +3064,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFLung->AddElement(I, 0.);
 
     rindexAFLung = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFLungDatafile;
-    rindexAFLungDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFLungDatafile >> wlen >> rindex;
-      	if(rindexAFLungDatafile.eof())
-      	    break;
-      	rindexAFLung->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFLungDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFLung);
     
     absLengthAFLung = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFLungDatafile;
-    linAttCoeffAFLungDatafile.open("linAttCoeffAFLung.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFLungDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFLungDatafile.eof())
-      	    break;
-      	absLengthAFLung->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFLungDatafile.close();
+    ReadDataFile("linAttCoeffAFLung.dat", absLengthAFLung);
     
     G4MaterialPropertiesTable *mptAFLung = DefineNonScintillatingMaterial(AFLung, 13, rindexAFLung, absLengthAFLung);
     
@@ -5464,30 +3088,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFGastroIntestinalContents->AddElement(I, 0.);
 
     rindexAFGastroIntestinalContents = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFGastroIntestinalContentsDatafile;
-    rindexAFGastroIntestinalContentsDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFGastroIntestinalContentsDatafile >> wlen >> rindex;
-      	if(rindexAFGastroIntestinalContentsDatafile.eof())
-      	    break;
-      	rindexAFGastroIntestinalContents->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFGastroIntestinalContentsDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFGastroIntestinalContents);
     
     absLengthAFGastroIntestinalContents = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFGastroIntestinalContentsDatafile;
-    linAttCoeffAFGastroIntestinalContentsDatafile.open("linAttCoeffAFGastroIntestinalContents.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFGastroIntestinalContentsDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFGastroIntestinalContentsDatafile.eof())
-      	    break;
-      	absLengthAFGastroIntestinalContents->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFGastroIntestinalContentsDatafile.close();
+    ReadDataFile("linAttCoeffAFGastroIntestinalContents.dat", absLengthAFGastroIntestinalContents);
     
     G4MaterialPropertiesTable *mptAFGastroIntestinalContents = DefineNonScintillatingMaterial(AFGastroIntestinalContents, 13, rindexAFGastroIntestinalContents, absLengthAFGastroIntestinalContents);
     
@@ -5508,30 +3112,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFUrine->AddElement(I, 0.);
 
     rindexAFUrine = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFUrineDatafile;
-    rindexAFUrineDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFUrineDatafile >> wlen >> rindex;
-      	if(rindexAFUrineDatafile.eof())
-      	    break;
-      	rindexAFUrine->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFUrineDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFUrine);
     
     absLengthAFUrine = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFUrineDatafile;
-    linAttCoeffAFUrineDatafile.open("linAttCoeffAFUrine.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFUrineDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFUrineDatafile.eof())
-      	    break;
-      	absLengthAFUrine->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFUrineDatafile.close();
+    ReadDataFile("linAttCoeffAFUrine.dat", absLengthAFUrine);
     
     G4MaterialPropertiesTable *mptAFUrine = DefineNonScintillatingMaterial(AFUrine, 13, rindexAFUrine, absLengthAFUrine);
     
@@ -5552,30 +3136,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFAir->AddElement(I, 0.);
 
     rindexAFAir = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFAirDatafile;
-    rindexAFAirDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFAirDatafile >> wlen >> rindex;
-      	if(rindexAFAirDatafile.eof())
-      	    break;
-      	rindexAFAir->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFAirDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFAir);
     
     absLengthAFAir = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFAirDatafile;
-    linAttCoeffAFAirDatafile.open("linAttCoeffAFAir.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFAirDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFAirDatafile.eof())
-      	    break;
-      	absLengthAFAir->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFAirDatafile.close();
+    ReadDataFile("linAttCoeffAFAir.dat", absLengthAFAir);
     
     G4MaterialPropertiesTable *mptAFAir = DefineNonScintillatingMaterial(AFAir, 13, rindexAFAir, absLengthAFAir);
     
@@ -5596,30 +3160,10 @@ void NSDetectorConstruction::DefineAFBioMedia()
     AFIodinatedBlood->AddElement(I, 0.01);
 
     rindexAFIodinatedBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream rindexAFIodinatedBloodDatafile;
-    rindexAFIodinatedBloodDatafile.open("rindexAir.dat");
-    while(1)
-    {
-      	G4double wlen, rindex;
-      	rindexAFIodinatedBloodDatafile >> wlen >> rindex;
-      	if(rindexAFIodinatedBloodDatafile.eof())
-      	    break;
-      	rindexAFIodinatedBlood->InsertValues(wavelenthToeV(wlen*nm), rindex);
-    }
-    rindexAFIodinatedBloodDatafile.close();
+    ReadDataFile("rindexAir.dat", rindexAFIodinatedBlood);
     
     absLengthAFIodinatedBlood = new G4PhysicsOrderedFreeVector();
-    std::ifstream linAttCoeffAFIodinatedBloodDatafile;
-    linAttCoeffAFIodinatedBloodDatafile.open("linAttCoeffAFIodinatedBlood.dat");
-    while(1)
-    {
-      	G4double energy, linAttCoeff;
-      	linAttCoeffAFIodinatedBloodDatafile >> energy >> linAttCoeff;
-      	if(linAttCoeffAFIodinatedBloodDatafile.eof())
-      	    break;
-      	absLengthAFIodinatedBlood->InsertValues(energy*keV, 1./linAttCoeff*cm);
-    }
-    linAttCoeffAFIodinatedBloodDatafile.close();
+    ReadDataFile("linAttCoeffAFIodinatedBlood.dat", absLengthAFIodinatedBlood);
     
     G4MaterialPropertiesTable *mptAFIodinatedBlood = DefineNonScintillatingMaterial(AFIodinatedBlood, 13, rindexAFIodinatedBlood, absLengthAFIodinatedBlood);
 }
@@ -5630,6 +3174,7 @@ void NSDetectorConstruction::DefineMaterials()
     
     DefineElements(nist);
     DefineWorld(nist);
+    DefineDetector(nist);
     
     DefineYAGCe();
     DefineZnSeTe();
@@ -6153,7 +3698,7 @@ void NSDetectorConstruction::ConstructMulticolorScintillator()
 
     G4LogicalBorderSurface *interfaceSurface;
     // Constructing the multilayer structure
-    G4double cumDepthOffset = -zWorld/2*cm+zSample*cm+gapSampleScint*cm;
+    G4double cumDepthOffset = -zWorld/2*cm+zSample*cm+gapSampleScint*cm+detectorDepth*um+gapScintDet*cm;
     G4cout << "cumDepthOffset: " << cumDepthOffset << G4endl;
     for(G4int l = 0; l < nLayers; ++l)
     {   
@@ -6276,26 +3821,13 @@ void NSDetectorConstruction::ConstructSensitiveDetector()
     {
         for(G4int j = 0; j < nDetY; j++)
         {
-            for(G4int k = 0; k < 1; k++)
+            physDetector = new G4PVPlacement(0, G4ThreeVector(-xDet/2*um+(i+0.5)*detectorX, -yDet/2*um+(j+0.5)*detectorY, -zWorld/2*cm+zSample*cm+gapSampleScint*cm+detectorDepth*um+gapScintDet*cm+GetTotalThickness()+gapScintDet*cm+detectorDepth/2*um), logicDetector, "physDetector", logicWorld, false, j+i*nDetY, checkDetectorsOverlaps);
+            if (constructTopDetector)
             {
-                physDetector = new G4PVPlacement(0, G4ThreeVector(-xDet/2*um+(i+0.5)*detectorX, -yDet/2*um+(j+0.5)*detectorY, -zWorld/2*cm+zSample*cm+gapSampleScint*cm+GetTotalThickness()+gapScintDet*cm+detectorDepth/2*um), logicDetector, "physDetector", logicWorld, false, j+i*nDetY, checkDetectorsOverlaps);
+                physDetector = new G4PVPlacement(0, G4ThreeVector(-xDet/2*um+(i+0.5)*detectorX, -yDet/2*um+(j+0.5)*detectorY, -zWorld/2*cm+zSample*cm+gapSampleScint*cm+detectorDepth/2*um), logicDetector, "physDetector", logicWorld, false, j+i*nDetY+nDetX*nDetY, checkDetectorsOverlaps);
             }
         }
     }
-    
-//    if (sampleID != 0)
-//    {
-//        for(G4int i = 0; i < nDetX; i++)
-//        {
-//            for(G4int j = 0; j < nDetY; j++)
-//            {
-//                for(G4int k = 0; k < 1; k++)
-//                {
-//                    physDetector = new G4PVPlacement(0, G4ThreeVector(-xDet/2*um+(i+0.5)*detectorX, -yDet/2*um+(j+0.5)*detectorY, -zWorld/2*cm+zSample*cm+gapSampleScint/2*cm+detectorDepth/2*um), logicDetector, "physDetector", logicWorld, false, j+i*nDetY+nDetX*nDetY, checkDetectorsOverlaps);
-//                }
-//            }
-//        }
-//    }
 }
 
 G4VPhysicalVolume *NSDetectorConstruction::Construct()

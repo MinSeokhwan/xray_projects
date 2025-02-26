@@ -1,0 +1,5 @@
+
+### Collecting Simulation Data
+    0////srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-node2: error: *** STEP 621752.0 ON node2 CANCELLED AT 2025-02-12T15:35:52 ***
+slurmstepd-node2: error: *** JOB 621752 ON node2 CANCELLED AT 2025-02-12T15:35:52 ***

@@ -14,49 +14,99 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
     G4ParticleDefinition* particleDef = track->GetDefinition();
     G4String particleType = particleDef->GetParticleType();
     
-    if (particleType == "opticalphoton")
-    {
-        G4StepPoint* preStep = step->GetPreStepPoint();
-        G4StepPoint* postStep = step->GetPostStepPoint();
-        
-        G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-        G4ThreeVector momPhoton = preStep->GetMomentum();
-        G4double wlen = (1.239841939*eV/momPhoton.mag())*1E+03;
+    G4StepPoint* preStep = step->GetPreStepPoint();
+    G4VPhysicalVolume* physVolPre = preStep->GetPhysicalVolume();
+    G4String volumeNamePre = physVolPre->GetName();
     
-        if (track->GetTrackStatus() == fStopAndKill)
+    G4StepPoint* postStep = step->GetPostStepPoint();
+    G4VPhysicalVolume* physVolPost = postStep->GetPhysicalVolume();
+    G4String volumeNamePost;
+    if (physVolPost)
+    {
+        volumeNamePost = physVolPost->GetName();
+    } else
+    {
+        volumeNamePost = "none";
+    }
+    
+    // G4cout << "PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << G4endl;
+    
+    if (volumeNamePre == "physWorld" && volumeNamePost == "physDetector")
+    {
+        G4String creatorProcess = track->GetCreatorProcess() != nullptr? track->GetCreatorProcess()->GetProcessName() : "none";
+        G4double vX = track->GetVertexPosition().x();
+        G4double vY = track->GetVertexPosition().y();
+        G4double vZ = track->GetVertexPosition().z();
+    
+        G4StepPoint *stepPoint;
+        if (particleType == "gamma")
         {
-            G4ThreeVector finalPosition = postStep->GetPosition();
-            G4VPhysicalVolume* physVol = postStep->GetPhysicalVolume();
-            G4String volumeName;
-            if (physVol)
-            {
-                volumeName = physVol->GetName();
-            } else {
-                volumeName = "none";
-            }
-            
-            G4AnalysisManager *man = G4AnalysisManager::Instance();
-            man->FillNtupleIColumn(3, 0, evt);
-            man->FillNtupleDColumn(3, 1, finalPosition[2]);
-            man->FillNtupleDColumn(3, 2, wlen);
-            man->FillNtupleSColumn(3, 3, volumeName);
-            man->AddNtupleRow(3);
+            stepPoint = postStep; // Photoelectric effect and Compton interaction are recorded at the post step
+        } else if (particleType == "opticalphoton")
+        {
+            stepPoint = preStep; // Recording the optical photon creation event
+        } else if (particleType == "lepton") // electrons
+        {
+            stepPoint = postStep;
         }
-
-        if (postStep->GetStepStatus() == fGeomBoundary)
+    
+        G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+        G4AnalysisManager *man = G4AnalysisManager::Instance();
+    
+        G4ThreeVector posPhoton = stepPoint->GetPosition();
+        G4ThreeVector momPhoton = stepPoint->GetMomentum();
+    
+        G4double wlen = (1.239841939*eV/momPhoton.mag())*1E+03;
+        
+        man->FillNtupleIColumn(0, 0, evt);
+        man->FillNtupleDColumn(0, 1, wlen);
+        man->FillNtupleSColumn(0, 2, particleType);
+        man->FillNtupleSColumn(0, 3, creatorProcess);
+        man->FillNtupleDColumn(0, 4, posPhoton[0]);
+        man->FillNtupleDColumn(0, 5, posPhoton[1]);
+        man->FillNtupleDColumn(0, 6, posPhoton[2]);
+        man->FillNtupleDColumn(0, 7, momPhoton[0]);
+        man->FillNtupleDColumn(0, 8, momPhoton[1]);
+        man->FillNtupleDColumn(0, 9, momPhoton[2]);
+        man->FillNtupleDColumn(0, 10, vX);
+        man->FillNtupleDColumn(0, 11, vY);
+        man->FillNtupleDColumn(0, 12, vZ);
+        man->AddNtupleRow(0);
+    
+        const G4VTouchable *touchable = postStep->GetTouchable();
+        G4VPhysicalVolume *physVol = touchable->GetVolume();
+        G4ThreeVector posDetector = physVol->GetTranslation();
+        
+        //G4cout << "x: " << posDetector[0] << " y: " << posDetector[1] << G4endl;
+        
+        man->FillNtupleIColumn(1, 0, evt);
+        man->FillNtupleDColumn(1, 1, posDetector[0]);
+        man->FillNtupleDColumn(1, 2, posDetector[1]);
+        man->AddNtupleRow(1);
+    
+        track->SetTrackStatus(fStopAndKill);
+    }
+     
+    if (particleType == "gamma" && postStep)
+    {
+        const G4VProcess* proc = postStep->GetProcessDefinedStep();
+        
+        if (proc && globNSEventAction)
         {
-            G4ThreeVector momentumDir = track->GetMomentumDirection();
-      
-            G4String prePhysVol = preStep->GetPhysicalVolume()->GetName();
-            G4String postPhysVol = postStep->GetPhysicalVolume()->GetName();
+            G4String procName = proc->GetProcessName();
             
-            G4AnalysisManager *man = G4AnalysisManager::Instance();
-            man->FillNtupleIColumn(4, 0, evt);
-            man->FillNtupleDColumn(4, 1, momentumDir[2]);
-            man->FillNtupleDColumn(4, 2, wlen);
-            man->FillNtupleSColumn(4, 3, prePhysVol);
-            man->FillNtupleSColumn(4, 4, postPhysVol);
-            man->AddNtupleRow(4);
+            if (procName == "rayl")
+                globNSEventAction->IncrementRayleighCount();
+            else if (procName == "phot")
+            {
+                G4cout << "IncrementPhotoelectricCount" << G4endl;
+                globNSEventAction->IncrementPhotoelectricCount();
+            }
+            else if (procName == "compt")
+            {
+                G4cout << "IncrementComptonCount" << G4endl;
+                globNSEventAction->IncrementComptonCount();
+            }
         }
     }
     

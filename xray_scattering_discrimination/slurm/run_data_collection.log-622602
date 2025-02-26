@@ -1,0 +1,194 @@
+
+### Collecting Simulation Data
+    0Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)
+Traceback (most recent call last):
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 362, in <module>
+    simulation.collect_simulation_data(Nreps=100, Nruns_per_energy=1000)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 324, in collect_simulation_data
+    self.read_output(Nruns_per_energy)
+  File "/home/minseokhwan/xray_projects/xray_scattering_discrimination/run_data_collection.py", line 286, in read_output
+    dxy_scint[i,:] = np.sqrt(np.sum(centroid**2, axis=0))
+ValueError: could not broadcast input array from shape (2,) into shape (4,)

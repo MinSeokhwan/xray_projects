@@ -56,7 +56,7 @@ private:
     G4UserLimits* userLimits;
     float fStepLimit;
 
-    G4Material *worldMat, *YAGCe, *ZnSeTe, *BaF2, *LaCl3Ce, *LYSOCe, *CsITl, *GSOCe, *NaITl, *GadoxTb, *SiO2, *TiO2;
+    G4Material *worldMat, *detMat, *YAGCe, *ZnSeTe, *BaF2, *LaCl3Ce, *LYSOCe, *CsITl, *GSOCe, *NaITl, *GadoxTb, *SiO2, *TiO2;
     
     G4Material *AMTeeth, *AMMineralBone, *AMHumeriUpper, *AMHumeriLower, *AMLowerArmBone, *AMHandBone, *AMClavicles, *AMCranium, *AMFemoraUpper, *AMFemoraLower, *AMLowerLeg, *AMFoot, *AMMandible, *AMPelvis;
     G4Material *AMRibs, *AMScapulae, *AMCervicalSpine, *AMThoracicSpine, *AMLumbarSpine, *AMSacrum, *AMSternum, *AMHumeriFemoraUpperMedullaryCavity, *AMHumeriFemoraLowerMedullaryCavity;
@@ -72,9 +72,11 @@ private:
     G4Material *sampleMat;
     G4Element *Y, *Al, *O, *Zn, *Se, *Ba, *F, *La, *Cl, *Lu, *Si, *Cs, *I, *H, *B, *C, *N, *Na, *Mg, *P, *S, *K, *Ca, *Fe, *Gd, *Ti;
     
+    G4PhysicsOrderedFreeVector *effDet;
+    
     G4PhysicsOrderedFreeVector *fraction;
     
-    G4PhysicsOrderedFreeVector *rindexWorld, *rindexYAGCe, *rindexZnSeTe, *rindexBaF2, *rindexLaCl3Ce, *rindexLYSOCe, *rindexCsITl, *rindexGSOCe, *rindexNaITl, *rindexGadoxTb;
+    G4PhysicsOrderedFreeVector *rindexWorld, *rindexDet, *rindexYAGCe, *rindexZnSeTe, *rindexBaF2, *rindexLaCl3Ce, *rindexLYSOCe, *rindexCsITl, *rindexGSOCe, *rindexNaITl, *rindexGadoxTb;
     G4PhysicsOrderedFreeVector *rindexSiO2, *rindexTiO2;
     
     G4PhysicsOrderedFreeVector *rindexAMTeeth, *rindexAMMineralBone, *rindexAMHumeriUpper, *rindexAMHumeriLower, *rindexAMLowerArmBone, *rindexAMHandBone, *rindexAMClavicles, *rindexAMCranium;
@@ -97,7 +99,7 @@ private:
     G4PhysicsOrderedFreeVector *rindexAFGallbladder, *rindexAFUterus, *rindexAFLymph, *rindexAFBreast, *rindexAFAdiposeTissue;
     G4PhysicsOrderedFreeVector *rindexAFLung, *rindexAFGastroIntestinalContents, *rindexAFUrine, *rindexAFAir, *rindexAFIodinatedBlood;
     
-    G4PhysicsOrderedFreeVector *absLengthYAGCe, *absLengthZnSeTe, *absLengthBaF2, *absLengthLaCl3Ce, *absLengthLYSOCe, *absLengthCsITl, *absLengthGSOCe, *absLengthNaITl, *absLengthGadoxTb;
+    G4PhysicsOrderedFreeVector *absLengthDet, *absLengthYAGCe, *absLengthZnSeTe, *absLengthBaF2, *absLengthLaCl3Ce, *absLengthLYSOCe, *absLengthCsITl, *absLengthGSOCe, *absLengthNaITl, *absLengthGadoxTb;
     G4PhysicsOrderedFreeVector *absLengthSiO2, *absLengthTiO2;
     
     G4PhysicsOrderedFreeVector *absLengthAMTeeth, *absLengthAMMineralBone, *absLengthAMHumeriUpper, *absLengthAMHumeriLower, *absLengthAMLowerArmBone, *absLengthAMHandBone, *absLengthAMClavicles;
@@ -120,14 +122,15 @@ private:
     G4PhysicsOrderedFreeVector *absLengthAFOesophagus, *absLengthAFGallbladder, *absLengthAFUterus, *absLengthAFLymph, *absLengthAFBreast, *absLengthAFAdiposeTissue;
     G4PhysicsOrderedFreeVector *absLengthAFLung, *absLengthAFGastroIntestinalContents, *absLengthAFUrine, *absLengthAFAir, *absLengthAFIodinatedBlood;
 
-    G4OpticalSurface *opticalSurfaceWorld, *opticalSurfaceYAGCe, *opticalSurfaceZnSeTe, *opticalSurfaceBaF2, *opticalSurfaceLaCl3Ce, *opticalSurfaceLYSOCe, *opticalSurfaceCsITl, *opticalSurfaceGSOCe;
-    G4OpticalSurface *opticalSurfaceNaITl, *opticalSurfaceGadoxTb, *opticalSurfaceSiO2, *opticalSurfaceTiO2;
+    G4OpticalSurface *opticalSurfaceWorld, *opticalSurfaceDet, *opticalSurfaceYAGCe, *opticalSurfaceZnSeTe, *opticalSurfaceBaF2, *opticalSurfaceLaCl3Ce, *opticalSurfaceLYSOCe, *opticalSurfaceCsITl;
+    G4OpticalSurface *opticalSurfaceNaITl, *opticalSurfaceGadoxTb, *opticalSurfaceSiO2, *opticalSurfaceTiO2, *opticalSurfaceGSOCe;
 
     void DefineMaterials();
     void DefineElements(G4NistManager *nist);
     void DefineOpticalSurface(G4MaterialPropertiesTable* mpt, G4OpticalSurface* opticalSurface, G4String opticalSurfaceName);
 
     void DefineWorld(G4NistManager *nist);
+    void DefineDetector(G4NistManager *nist);
     void DefineYAGCe();
     void DefineZnSeTe();
     void DefineBaF2();
@@ -149,7 +152,7 @@ private:
     std::vector<G4LogicalVolume*> fSampleVolumes;
     G4double xWorld, yWorld, zWorld, gapSampleScint, gapScintDet;
     
-    G4bool constructDetectors;
+    G4bool constructDetectors, constructTopDetector;
     G4int nDetX, nDetY;
     G4double xDet, yDet, detectorDepth, detectorX, detectorY;
 

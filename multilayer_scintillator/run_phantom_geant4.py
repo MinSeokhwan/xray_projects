@@ -25,7 +25,7 @@ import subprocess
 import uproot
 import time
 import util.read_txt as txt
-import multilayer_scintillator.xray_spectrum_generator as xray
+import util.xray_spectrum_generator as xray
 import multilayer_scintillator.generate_linAttCoeff_dat as phantom
 import multilayer_scintillator.filtered_backprojection as FBP
 
@@ -195,7 +195,7 @@ class geant4:
     
     def make_simulation_macro(self, Nruns, source_energy=None, source_xy=None):
         with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
-            mac.write("/tracking/verbose 2\n")
+            #mac.write("/tracking/verbose 2\n")
         
             mac.write("/system/root_file_name output" + str(comm.rank + self.rank_start) + ".root\n")
         
@@ -242,6 +242,7 @@ class geant4:
             mac.write("\n")
             
             mac.write("/structure/constructDetectors 1\n")
+            mac.write("/structure/constructTopDetector 0\n")
             mac.write("/structure/xDet " + str(np.round(self.dimDet[0], 6)) + "\n")
             mac.write("/structure/yDet " + str(np.round(self.dimDet[1], 6)) + "\n")
             mac.write("/structure/nDetX " + str(int(self.NDetVoxel[0])) + "\n")
@@ -278,47 +279,47 @@ class geant4:
             mac.write("/run/beamOn " + str(int(Nruns)))
         
     def read_output(self, Nruns):
-        if os.path.exists(self.G4directory + "/build/output" + str(comm.rank + self.rank_start) + ".root"):
-            os.remove(self.G4directory + "/build/output" + str(comm.rank + self.rank_start) + ".root")
+        if os.path.exists(self.G4directory + "/build/output" + str(comm.rank + self.rank_start) + "_t0.root"):
+            os.remove(self.G4directory + "/build/output" + str(comm.rank + self.rank_start) + "_t0.root")
     
         os.chdir(self.G4directory + "/build")
         proc = subprocess.Popen(["./NS", "run_detector_rank" + str(comm.rank + self.rank_start) + ".mac"])
         
         while True:
-            if os.path.exists(self.G4directory + "/build/output" + str(comm.rank + self.rank_start) + ".root"):
+            if os.path.exists(self.G4directory + "/build/output" + str(comm.rank + self.rank_start) + "_t0.root"):
                 break
             time.sleep(1)
         
         while True:
             try:
-                root_file = uproot.open(self.G4directory + "/build/output" + str(comm.rank + self.rank_start) + ".root")
+                root_file = uproot.open(self.G4directory + "/build/output" + str(comm.rank + self.rank_start) + "_t0.root")
                 photons = root_file['Photons']
                 hits = root_file['Hits']
                 source = root_file['Source']
-                debug = root_file['Debug']
-                debug2 = root_file['Debug2']
+#                debug = root_file['Debug']
+#                debug2 = root_file['Debug2']
                 break
             except:
                 time.sleep(1)
         
-        event_debug = np.array(debug["fEvent"].array())
-        vz_debug = np.array(debug["vZ"].array())
-        wvl_debug = np.array(debug["wlen"].array())
-        proc_debug = np.array(debug["process"].array())
-        
-        event_debug2 = np.array(debug2["fEvent"].array())
-        mz_debug2 = np.array(debug2["mZ"].array())
-        wvl_debug2 = np.array(debug2["wlen"].array())
-        preVol_debug2 = np.array(debug2["preVol"].array())
-        postVol_debug2 = np.array(debug2["postVol"].array())
+#        event_debug = np.array(debug["fEvent"].array())
+#        vz_debug = np.array(debug["vZ"].array())
+#        wvl_debug = np.array(debug["wlen"].array())
+#        proc_debug = np.array(debug["process"].array())
+#        
+#        event_debug2 = np.array(debug2["fEvent"].array())
+#        mz_debug2 = np.array(debug2["mZ"].array())
+#        wvl_debug2 = np.array(debug2["wlen"].array())
+#        preVol_debug2 = np.array(debug2["preVol"].array())
+#        postVol_debug2 = np.array(debug2["postVol"].array())
         
         creatorProcess = [t for t in photons["fCreatorProcess"].array()] # run 10000 or more at a time and use fEvent to determine which is which
         scint_photon_ind = np.array([t == 'Scintillation' for t in creatorProcess])
         
-        np.savez(directory + "/debug_vZ", event_debug=event_debug, vz_debug=vz_debug, wvl_debug=wvl_debug, proc_debug=proc_debug,
-                 event_debug2=event_debug2, mz_debug2=mz_debug2, wvl_debug2=wvl_debug2, preVol_debug2=preVol_debug2, postVol_debug2=postVol_debug2,
-                 creatorProcess=np.array(creatorProcess), eventHits=np.array(hits["fEvent"].array()))
-        assert False
+#        np.savez(directory + "/debug_vZ", event_debug=event_debug, vz_debug=vz_debug, wvl_debug=wvl_debug, proc_debug=proc_debug,
+#                 event_debug2=event_debug2, mz_debug2=mz_debug2, wvl_debug2=wvl_debug2, preVol_debug2=preVol_debug2, postVol_debug2=postVol_debug2,
+#                 creatorProcess=np.array(creatorProcess), eventHits=np.array(hits["fEvent"].array()))
+#        assert False
         
         wvl_list = np.array(photons["fWlen"].array())[scint_photon_ind]
         px_list = np.array(photons["pX"].array())[scint_photon_ind]
@@ -1910,9 +1911,9 @@ if __name__ == '__main__':
         RGB_scintillator = True
         Nlayers = 3
         scintillator_material = np.array([2,7,6])
-        scintillator_thickness = np.array([0.3,0.3,0.3]) # 0.775962,0.984305,0.915477
-        distribution_datafile = 'ZnSe_Gadox_NaI_67keV_300um'
-        identifier = 'ZnSe_Gadox_NaI_67keV_300um'
+        scintillator_thickness = np.array([0.1,0.1,0.1]) # 0.775962,0.984305,0.915477
+        distribution_datafile = 'ZnSe_Gadox_NaI_67keV_100um_test'
+        identifier = 'ZnSe_Gadox_NaI_67keV_100um_test'
         rank_start = 0
     else:
         RGB_scintillator = False

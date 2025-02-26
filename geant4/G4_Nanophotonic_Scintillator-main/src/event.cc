@@ -1,8 +1,11 @@
 #include "event.hh"
 
+thread_local NSEventAction* globNSEventAction = nullptr;
+
 NSEventAction::NSEventAction(NSRunAction*)
+: fRayleighCount(0), fPhotoelectricCount(0), fComptonCount(0)
 {
-    fEdep = 0.;
+    globNSEventAction = this;
 }
 
 NSEventAction::~NSEventAction()
@@ -10,7 +13,9 @@ NSEventAction::~NSEventAction()
 
 void NSEventAction::BeginOfEventAction(const G4Event* evt)
 {
-    fEdep = 0.;
+    fRayleighCount = 0;
+    fPhotoelectricCount = 0;
+    fComptonCount = 0;
     
     G4int evtID = evt->GetEventID();
     G4ThreeVector posSrc = evt->GetPrimaryVertex()->GetPosition();
@@ -25,13 +30,18 @@ void NSEventAction::BeginOfEventAction(const G4Event* evt)
     man->AddNtupleRow(2);
 }
 
-void NSEventAction::EndOfEventAction(const G4Event*)
+void NSEventAction::EndOfEventAction(const G4Event* evt)
 {
-    // #ifndef G4MULTITHREADED
-    //     G4cout << "Energy deposition: " << fEdep << G4endl;
-    // #endif
+    G4int evtID = evt->GetEventID();
 
-    //G4AnalysisManager *man = G4AnalysisManager::Instance();
-    //man->FillNtupleDColumn(2, 0, fEdep);
-    //man->AddNtupleRow(2);
+    G4cout << "Rayleigh: " << fRayleighCount << G4endl;
+    G4cout << "Photoelectric: " << fPhotoelectricCount << G4endl;
+    G4cout << "Compton: " << fComptonCount << G4endl;
+
+    G4AnalysisManager *man = G4AnalysisManager::Instance();
+    man->FillNtupleIColumn(3, 0, evtID);
+    man->FillNtupleIColumn(3, 1, fRayleighCount);
+    man->FillNtupleIColumn(3, 2, fPhotoelectricCount);
+    man->FillNtupleIColumn(3, 3, fComptonCount);
+    man->AddNtupleRow(3);
 }

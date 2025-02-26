@@ -7,6 +7,8 @@
 #include "G4Electron.hh"
 #include "G4AnalysisManager.hh"
 #include "G4RunManager.hh"
+#include "G4OpBoundaryProcess.hh"
+#include "G4AffineTransform.hh"
 
 #include "construction.hh"
 #include "event.hh"
