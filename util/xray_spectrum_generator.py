@@ -14,6 +14,7 @@ def get_spectrum(target_material,
                  theta, # xray target tilt angle (deg)
                  filter_material,
                  d_filter, # filter thickness (cm)
+                 include_char_xray=True,
                  ):
 
     e0 = 1.602e-19 # elementary charge (C)
@@ -94,7 +95,7 @@ def get_spectrum(target_material,
     N_B = ((alpha*re**2*Z**2)/(A*E))*integral
     
     ### Characteristic Radiation
-    if T0 > EK:
+    if include_char_xray and T0 > EK:
         # (1) X-Ray production probability
         R = (T0**2 - EK**2)/(rho*c_TW)
         x = np.linspace(0, R, int(1e5))
@@ -148,11 +149,11 @@ if __name__ == '__main__':
 #    np.savez(directory + '/data/simulated_xray_spectrum_sweep', E=E, N=N, I_bin=I_bin, mse=mse)
     
     E, N = get_spectrum('W', # target material
-                        np.linspace(16, 67, 52), # xray energy bins (keV)
-                        67, # incident electron energy (keV)
+                        np.linspace(10, 120, 111), # xray energy bins (keV)
+                        120, # incident electron energy (keV)
                         12, # target tilt angle (deg)
-                        ['Al'], # filter material
+                        ['Pb'], # filter material
                         [0.3], # filter thickness (cm)
                         )
 
-    np.savez(directory + '/data/simulated_xray_spectrum', E=E, N=N)
+    np.savez(directory + '/simulated_xray_spectrum', E=E, N=N)

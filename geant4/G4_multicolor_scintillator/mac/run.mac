@@ -1,0 +1,26 @@
+/structure/xWorld 0.1
+/structure/yWorld 0.1
+/structure/zWorld 0.1
+
+/structure/isMultilayerNS 1
+/structure/nLayersNS 15
+/structure/substrateThickness 0.0001
+/structure/scintillatorThickness 0.000680
+/structure/dielectricThickness 0.000110
+
+/structure/isAuLayer 0
+
+/structure/constructDetectors 1
+/structure/nGridX 1
+/structure/nGridY 1
+/structure/detectorDepth 0.0001
+
+/structure/checkDetectorsOverlaps 1
+
+/structure/scintillatorLifeTime 2.5
+/structure/scintillationYield 9000.0
+
+/run/initialize
+/control/execute vis.mac
+
+/run/beamOn 100000

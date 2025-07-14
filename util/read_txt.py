@@ -17,7 +17,7 @@ def read_txt(filename):
         count = 0
         for line in f:
             temp_array = np.array([line.split()])
-            raw[count,:] = np.asfarray(temp_array, float)
+            raw[count,:] = np.asarray(temp_array, dtype=np.float64)
             count += 1
         
         return raw
