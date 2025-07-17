@@ -19,6 +19,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4UserLimits.hh"
 #include "G4PhysicsOrderedFreeVector.hh"
+#include "G4RotationMatrix.hh"
 
 #include "detector.hh"
 #include <G4Types.hh>
@@ -42,8 +43,8 @@ public:
 private:
     G4Navigator* navigator;
 
-    G4Box *solidDetector, *solidSample, *solidSoftTissue, *solidScintImg;
-    G4Tubs *solidMuscle, *solidBone, *solidIBlood, *solidGdBlood, *solidWorld, *solidScintCorr;
+    G4Box *solidWorld, *solidDetector, *solidSample, *solidSoftTissue, *solidScintImg;
+    G4Tubs *solidMuscle, *solidBone, *solidIBlood, *solidGdBlood, *solidScintCorr;
     G4LogicalVolume *logicWorld, *logicDetector, *logicSample, *logicAir, *logicSoftTissue, *logicMuscle, *logicBone, *logicIBlood, *logicGdBlood, *logicScintCorr, *logicScintImg;
     G4VPhysicalVolume *physWorld, *physDetector, *physSample, *physAir, *physSoftTissue, *physMuscle, *physBone, *physIBlood, *physGdBlood, *physScintCorr, *physScintImg;
 
@@ -153,16 +154,13 @@ private:
 
     G4double rScintCorr, zScintCorr, xScintImg, yScintImg, zScintImg;
     G4int materialScintCorr, materialScintImg;
+    G4RotationMatrix* rotScintCorr;
     
     G4int sampleID, organIDij;
     G4String sampleName;
     G4double xSample, ySample, zSample, voxelX, voxelY, voxelZ;
     G4int nSampleXall, nSampleX, nSampleY, nSampleZ, indSampleX, indSampleY, indSampleZ;
     G4double IConcentration, GdConcentration;
-	
-    std::vector<G4double> layerThicknesses;
-    std::vector<G4Material*> layerMaterials;
-    std::vector<G4int> layerMaterialName;
 
     bool checkDetectorsOverlaps;
 };

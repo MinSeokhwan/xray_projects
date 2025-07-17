@@ -29,7 +29,8 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
         volumeNamePost = "none";
     }
     
-    // G4cout << "PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << G4endl;
+    //G4cout << "Particle" << particleType << "PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << G4endl;
+    //std::cerr << "Particle" << particleType << "PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << std::endl;
     
     if (volumeNamePre == "physWorld" && volumeNamePost == "physDetector")
     {
@@ -128,5 +129,10 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
             //G4double edep = step->GetTotalEnergyDeposit();
             //fEventAction->AddEdep(edep);
         }
+        
+        // Prevent infinite TIR in cylindrical scintillator
+		if (track->GetCurrentStepNumber() > 1000) {
+			track->SetTrackStatus(fStopAndKill);
+		}
     }
 }

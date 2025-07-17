@@ -14,6 +14,8 @@ void NSActionInitialization::BuildForMaster() const
 
 void NSActionInitialization::Build() const
 {
+	//std::cerr << "[DEBUG] NSActionInitialization::Build() called\n";
+
     NSPrimaryGenerator *generator = new NSPrimaryGenerator();
     SetUserAction(generator);
     

@@ -29,6 +29,8 @@
 NSPrimaryGenerator::NSPrimaryGenerator()
 {
     fParticleGun = new G4GeneralParticleSource();
+    //std::cerr << "[DEBUG] Using G4GeneralParticleSource\n";
+	//G4cout << "[G4cout] /gps commands should be available\n" << G4endl;
 }
 
 NSPrimaryGenerator::~NSPrimaryGenerator()

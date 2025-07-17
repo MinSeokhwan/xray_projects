@@ -9,7 +9,7 @@ NSDetectorConstruction::NSDetectorConstruction()
 {
     // World dimensions
     rWorld = 50.; //cm
-    zWorld = 1.; //cm
+    zWorld = 10.; //cm
     gapSampleScint = 0.001; //cm
     gapScintDet = 0.001; //cm
 
@@ -31,7 +31,7 @@ NSDetectorConstruction::NSDetectorConstruction()
     xScintImg = 0.5; //cm
     yScintImg = 0.5; //cm
     zScintImg = 0.1; //cm
-    materialScintImg = 4; // 1: YAGCe  2: ZnSeTe  3: LYSOCe  4: CsITl  5: GSOCe  6: NaITl  7: GadoxTb
+    materialScintImg = 3; // 1: YAGCe  2: ZnSeTe  3: LYSOCe  4: CsITl  5: GSOCe  6: NaITl  7: GadoxTb
     
     // Specify Imaging Sample
     sampleID = 0; // 0: None  1: AM  2: AF  3: Cylindrical
@@ -235,7 +235,7 @@ void NSDetectorConstruction::DefineYAGCe()
     ReadDataFile("linAttCoeffYAGCe.dat", absLengthYAGCe);
     
     G4MaterialPropertiesTable* mptYAGCe = new G4MaterialPropertiesTable();
-    DefineScintillator(mptYAGCe, YAGCe, 3, rindexYAGCe, fraction, absLengthYAGCe, 35./keV, 1., 70.*ns); //35
+    DefineScintillator(mptYAGCe, YAGCe, 3, rindexYAGCe, fraction, absLengthYAGCe, 3.5/keV, 1., 70.*ns); //35
 
     // // Creating the optical surface properties
     opticalSurfaceYAGCe = new G4OpticalSurface("interfaceSurfaceYAGCe");
@@ -329,7 +329,7 @@ void NSDetectorConstruction::DefineLYSOCe()
     ReadDataFile("linAttCoeffLYSOCe.dat", absLengthLYSOCe);
     
     G4MaterialPropertiesTable* mptLYSOCe = new G4MaterialPropertiesTable();
-    DefineScintillator(mptLYSOCe, LYSOCe, 4, rindexLYSOCe, fraction, absLengthLYSOCe, 25./keV, 1., 40.*ns);
+    DefineScintillator(mptLYSOCe, LYSOCe, 4, rindexLYSOCe, fraction, absLengthLYSOCe, 2.5/keV, 1., 40.*ns);
 
     // Creating the optical surface properties
     opticalSurfaceLYSOCe = new G4OpticalSurface("interfaceSurfaceLYSOCe");
@@ -3592,8 +3592,10 @@ void NSDetectorConstruction::ConstructScintillators()
 
     solidScintCorr = new G4Tubs("solidScintCorr", 0.0, rScintCorr*cm, zScintCorr/2*cm, 0.0*deg, 360.0*deg);
     logicScintCorr = new G4LogicalVolume(solidScintCorr, matNameScintCorr, "logicScintCorr");
+   	rotScintCorr = new G4RotationMatrix();
+	rotScintCorr -> rotateY(-90.0*deg);
     G4ThreeVector transScintCorr = G4ThreeVector(0., 0., 0.);
-    physScintCorr = new G4PVPlacement(0, transScintCorr, logicScintCorr, "physScintCorr", logicWorld, false, 0, checkDetectorsOverlaps);
+    physScintCorr = new G4PVPlacement(rotScintCorr, transScintCorr, logicScintCorr, "physScintCorr", logicWorld, false, 0, checkDetectorsOverlaps);
 
     G4LogicalBorderSurface *interfaceScintCorr = new G4LogicalBorderSurface("interfaceScintCorr", physWorld, physScintCorr, opticalSurfaceWorld);
 
@@ -3647,7 +3649,7 @@ G4VPhysicalVolume *NSDetectorConstruction::Construct()
     DefineMaterials();
     
     navigator = new G4Navigator();
-    solidWorld = new G4Tubs("solidWorld", 0.0, rWorld*cm, zWorld/2*cm, 0.0*deg, 360.0*deg); // define volume boundaries (length inputs should be half the actual length)
+    solidWorld = new G4Box("solidWorld", zWorld/2*cm, rWorld*cm, rWorld*cm); // define volume boundaries (length inputs should be half the actual length)
     logicWorld = new G4LogicalVolume(solidWorld, worldMat, "logicWorld"); // define volume material
     physWorld = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, checkDetectorsOverlaps);
     // parameters: rotation, volume center, logicalVolume, name, mother volume, boolean operations, copy number (ID), checkOverlaps

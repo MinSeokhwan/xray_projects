@@ -157,14 +157,14 @@ class geant4:
             
             mac.write("/gps/particle gamma\n")
             mac.write("/gps/direction "\
+            	+ "0 "\
                 + str(np.round(np.cos(source_theta - np.pi/2), 6)) + " "\
-                + str(np.round(np.sin(source_theta - np.pi/2), 6)) + " "\
-                + "0\n") # downward incidence is theta = 0
+                + str(np.round(np.sin(source_theta - np.pi/2), 6)) + "\n") # downward incidence is theta = 0
             mac.write("/gps/pos/type " + source_type + "\n")
             mac.write("/gps/pos/centre"\
+            	+ " 0.0 "\
                 + " " + str(np.round(self.dimWorld[0]*np.cos(source_theta + np.pi/2), 6))\
-                + " " + str(np.round(self.dimWorld[0]*np.sin(source_theta + np.pi/2), 6))\
-                + " 0.0 cm\n")
+                + " " + str(np.round(self.dimWorld[0]*np.sin(source_theta + np.pi/2), 6)) + "\n")
             mac.write("/gps/ene/type User\n")
             mac.write("/gps/ene/emspec 0\n")
             mac.write("/gps/hist/type energy\n")
