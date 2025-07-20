@@ -29,7 +29,7 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
         volumeNamePost = "none";
     }
     
-    G4cout << "Particle " << particleType << " | PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << G4endl;
+    //G4cout << "Particle " << particleType << " | PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << G4endl;
     //std::cerr << "Particle" << particleType << "PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << std::endl;
     
     if (volumeNamePre == "physWorld" && volumeNamePost == "physDetector")
@@ -59,6 +59,8 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
     
         G4double wlen = (1.239841939*eV/momPhoton.mag())*1E+03;
         
+        std::cerr << "Particle " << particleType << " | Wlen " << wlen << std::endl;
+        
         man->FillNtupleIColumn(0, 0, evt);
         man->FillNtupleDColumn(0, 1, wlen);
         man->FillNtupleSColumn(0, 2, particleType);
@@ -79,6 +81,7 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
         G4ThreeVector posDetector = physVol->GetTranslation();
         
         //G4cout << "x: " << posDetector[0] << " y: " << posDetector[1] << G4endl;
+        std::cerr << "zDet " << posDetector[2] << std::endl;
         
         man->FillNtupleIColumn(1, 0, evt);
         //man->FillNtupleDColumn(1, 1, posDetector[0]);

@@ -3636,8 +3636,8 @@ void NSDetectorConstruction::ConstructSensitiveDetector()
     {
         for(G4int j = 0; j < nDetY; j++)
         {
-            G4ThreeVector transDetCorr = G4ThreeVector(-xDet/2*um+(i+0.5)*detectorX, -yDet/2*um+(j+0.5)*detectorY, -zOffsetCorr+detectorDepth/2*um);
-            G4ThreeVector transDetImg = G4ThreeVector(-xDet/2*um+(i+0.5)*detectorX, -yDet/2*um+(j+0.5)*detectorY, -zOffsetImg+detectorDepth/2*um);
+            G4ThreeVector transDetCorr = G4ThreeVector(-xDet/2*um+(i+0.5)*detectorX, -yDet/2*um+(j+0.5)*detectorY, -zOffsetCorr-detectorDepth/2*um);
+            G4ThreeVector transDetImg = G4ThreeVector(-xDet/2*um+(i+0.5)*detectorX, -yDet/2*um+(j+0.5)*detectorY, -zOffsetImg-detectorDepth/2*um);
             physDetector = new G4PVPlacement(0, transDetCorr, logicDetector, "physDetector", logicWorld, false, j+i*nDetY, checkDetectorsOverlaps);
             physDetector = new G4PVPlacement(0, transDetImg, logicDetector, "physDetector", logicWorld, false, j+i*nDetY+nDetX*nDetY, checkDetectorsOverlaps);
         }
