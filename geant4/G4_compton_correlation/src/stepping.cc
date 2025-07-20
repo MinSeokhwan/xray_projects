@@ -29,7 +29,7 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
         volumeNamePost = "none";
     }
     
-    //G4cout << "Particle" << particleType << "PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << G4endl;
+    G4cout << "Particle " << particleType << " | PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << G4endl;
     //std::cerr << "Particle" << particleType << "PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << std::endl;
     
     if (volumeNamePre == "physWorld" && volumeNamePost == "physDetector")

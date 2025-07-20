@@ -235,7 +235,7 @@ void NSDetectorConstruction::DefineYAGCe()
     ReadDataFile("linAttCoeffYAGCe.dat", absLengthYAGCe);
     
     G4MaterialPropertiesTable* mptYAGCe = new G4MaterialPropertiesTable();
-    DefineScintillator(mptYAGCe, YAGCe, 3, rindexYAGCe, fraction, absLengthYAGCe, 3.5/keV, 1., 70.*ns); //35
+    DefineScintillator(mptYAGCe, YAGCe, 3, rindexYAGCe, fraction, absLengthYAGCe, 35./keV, 1., 70.*ns); //35
 
     // // Creating the optical surface properties
     opticalSurfaceYAGCe = new G4OpticalSurface("interfaceSurfaceYAGCe");
@@ -329,7 +329,7 @@ void NSDetectorConstruction::DefineLYSOCe()
     ReadDataFile("linAttCoeffLYSOCe.dat", absLengthLYSOCe);
     
     G4MaterialPropertiesTable* mptLYSOCe = new G4MaterialPropertiesTable();
-    DefineScintillator(mptLYSOCe, LYSOCe, 4, rindexLYSOCe, fraction, absLengthLYSOCe, 2.5/keV, 1., 40.*ns);
+    DefineScintillator(mptLYSOCe, LYSOCe, 4, rindexLYSOCe, fraction, absLengthLYSOCe, 25./keV, 1., 40.*ns);
 
     // Creating the optical surface properties
     opticalSurfaceLYSOCe = new G4OpticalSurface("interfaceSurfaceLYSOCe");

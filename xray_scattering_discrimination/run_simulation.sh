@@ -4,7 +4,7 @@
 #running a distributed memory MPI job over multiple nodes
 #-------------------------------------------------------------
 #
-#SBATCH -o /nfs/scistore08/roquegrp/smin/xray_projects/xray_scattering_discrimination/slurm/run_data_collection.log-%j
+#SBATCH -o /nfs/scistore08/roquegrp/smin/xray_projects/xray_scattering_discrimination/slurm/run_simulation.log-%j
 #SBATCH --job-name=run_data
 #
 #Total number of CPU cores to be used for the MPI job
@@ -17,7 +17,7 @@
 #Define the amount of RAM used per CPU in GigaBytes
 #In distributed memory applications the total amount of RAM 
 #used will be:   number of CPUs * memory per CPU
-#SBATCH --mem-per-cpu=5G
+#SBATCH --mem-per-cpu=2G
 #
 #Pick whether you prefer requeue or not. If you use the --requeue
 #option, the requeued job script will start from the beginning, 
@@ -48,4 +48,4 @@ export PATH=/nfs/scistore08/roquegrp/smin/xray_projects/geant4/geant4-v11.2.2-in
 export LD_LIBRARY_PATH=/nfs/scistore08/roquegrp/smin/xray_projects/geant4/geant4-v11.2.2-install/lib:$LD_LIBRARY_PATH
 #
 #run the respective binary through SLURM's srun
-mpirun -n 100 python /nfs/scistore08/roquegrp/smin/xray_projects/xray_scattering_discrimination/run_data_collection.py
+mpirun -n 60 python /nfs/scistore08/roquegrp/smin/xray_projects/xray_scattering_discrimination/run_simulation.py

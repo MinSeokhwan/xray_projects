@@ -57,6 +57,7 @@ class geant4:
         # Source
         self.rSource = rSource
         self.theta_list = np.linspace(0, 2*np.pi, theta_bins, endpoint=False)
+        self.theta_bins = theta_bins
         self.energy_list = np.linspace(energy_range[0], energy_range[1], energy_bins)
         self.energy_bins = energy_bins
         self.energy_list, xraySrc = xray.get_spectrum(xray_target_material,
@@ -108,7 +109,7 @@ class geant4:
         self.identifier = identifier
         self.rank_start = rank_start
     
-    def make_simulation_macro(self, Nruns, souce_theta=0.0, source_type='Point'):
+    def make_simulation_macro(self, Nruns, source_theta=0.0, source_type='Point'):
         with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
             mac.write("/system/root_file_name output" + str(comm.rank + self.rank_start) + ".root\n")
         
@@ -123,8 +124,8 @@ class geant4:
             mac.write("/structure/xScintImg " + str(np.round(self.dimScintImg[0], 6)) + "\n")
             mac.write("/structure/yScintImg " + str(np.round(self.dimScintImg[1], 6)) + "\n")
             mac.write("/structure/zScintImg " + str(np.round(self.dimScintImg[2], 6)) + "\n")
-            mac.write("/structure/matScintCorr " + str(self.matScintCorr) + "\n")
-            mac.write("/structure/matScintImg " + str(self.matScintImg) + "\n\n")
+            mac.write("/structure/materialScintCorr " + str(self.matScintCorr) + "\n")
+            mac.write("/structure/materialScintImg " + str(self.matScintImg) + "\n\n")
             
             mac.write("/structure/sampleID " + str(int(self.sampleID)) + "\n")
             mac.write("/structure/xSample " + str(np.round(self.dimSample[0], 6)) + "\n")
@@ -202,14 +203,21 @@ class geant4:
         wvl_list = np.array(photons['fWlen'].array())
         particle_type_list = np.array(photons['particleType'].array())
         fz_list = np.array(hits["fZ"].array())
-        E_inc_list = np.array(source['fEnergy'].array())
+        E_inc_list = 1e3*np.array(source['fEnergy'].array())
         n_phot_list = np.array(process['Photoelectric'].array())
         n_compt_list = np.array(process['Compton'].array())
+
+        np.savez(directory + '/debug_run_geant4',
+            eventID=eventID,
+            wvl_list=wvl_list,
+            particle_type_list=particle_type_list,
+            fz_list=fz_list,
+            E_inc_list=E_inc_list,
+            n_phot_list=n_phot_list,
+            n_compt_list=n_compt_list,
+        )
         
         # Database Quantities
-        theta_inc = np.zeros(())
-        E_X_det = np.zeros((self.theta_bins, ))
-
         if os.path.exists(directory + "/data/" + self.identifier + "/geant4_data_" + str(comm.rank + self.rank_start) + ".npz"):
             with np.load(directory + "/data/" + self.identifier + "/geant4_data_" + str(comm.rank + self.rank_start) + ".npz") as data:
                 E_inc = data['E_inc']
@@ -304,7 +312,7 @@ class geant4:
                     print('/', end='', flush=True)
             
             self.make_simulation_macro(Nphot_per_theta, source_theta=self.theta_list[nT], source_type='Point')
-            self.read_output(Nphot_per_theta, source_theta=self.theta_list[nT])
+            self.run_geant4(Nphot_per_theta, source_theta=self.theta_list[nT])
         
         if verbose:
             print(i+1, flush=True)
@@ -315,7 +323,7 @@ if __name__ == '__main__':
     else:
         verbose = False
     
-    identifier = 'YAGCe_50_120keV_tube_Pb3mm'
+    identifier = 'YAGCe_50_120keV_tube_Pb3mm_calibration'
     
     if rank == 0:
         if not os.path.exists(directory + "/data/" + identifier):
@@ -336,7 +344,7 @@ if __name__ == '__main__':
         dimScintCorr = np.array([0.5,0.1]), # [r,z] in cm
         dimScintImg = np.array([0.5,0.5,0.1]), # [x,y,z] in cm
         matScintCorr = 1, # YAGCe
-        macScintImg = 3, # LYSOCe
+        matScintImg = 3, # LYSOCe
         dimDetVoxel = np.array([100000.,100000.,0.1]), # in um
         NDetVoxel = np.array([1,1,1]),
         gapSampleScint = 0.001, # in cm
@@ -355,4 +363,4 @@ if __name__ == '__main__':
         rank_start = 0, #----------------------------------------------------------------- Change
     )
 
-    simulation.collect_simulation_data(Nreps=100, Nphot_per_rep=15000)
+    simulation.collect_simulation_data(Nphot_per_theta=10000)
