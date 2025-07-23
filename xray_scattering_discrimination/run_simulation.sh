@@ -17,7 +17,7 @@
 #Define the amount of RAM used per CPU in GigaBytes
 #In distributed memory applications the total amount of RAM 
 #used will be:   number of CPUs * memory per CPU
-#SBATCH --mem-per-cpu=2G
+#SBATCH --mem-per-cpu=5G
 #
 #Pick whether you prefer requeue or not. If you use the --requeue
 #option, the requeued job script will start from the beginning, 

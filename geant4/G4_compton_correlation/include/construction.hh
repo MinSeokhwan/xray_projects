@@ -147,7 +147,7 @@ private:
     G4GenericMessenger *fMessenger;
     std::vector<G4LogicalVolume*> fScoringVolumes;
     std::vector<G4LogicalVolume*> fSampleVolumes;
-    G4double rWorld, zWorld, gapSampleScint, gapScintDet;
+    G4double xWorld, yWorld, zWorld, gapSampleScint, gapScintDet, gapDetCorrSample;
     
     G4int nDetX, nDetY;
     G4double xDet, yDet, detectorDepth, detectorX, detectorY;

@@ -38,6 +38,7 @@ class geant4:
                  NDetVoxel,
                  gapSampleScint,
                  gapScintDet,
+                 gapDetCorrSample,
                  check_overlap,
                  energy_range,
                  energy_bins,
@@ -95,13 +96,22 @@ class geant4:
         self.dimDet = NDetVoxel*dimDetVoxel # um
         
         # World
-        self.dimWorld = np.zeros(3)
-        self.dimWorld[0] = np.max((self.dimScintCorr[1], self.dimSample[0], self.dimDet[0]))
-        self.dimWorld[1] = rSource
-        self.dimWorld[2] = rSource
+        self.dimWorld = np.zeros(2)
+        self.dimWorld[0] = np.max((self.dimScintCorr[1], self.dimSample[0], self.dimDet[0]/1e4))
+        self.dimWorld[1] = 2*rSource
+        self.dimWorld[2] = 2*(rScintCorr\
+            + gapScintDet\
+            + self.dimDet[2]/1e4\
+            + gapDetCorrSample\
+            + self.dimSample[2]\
+            + gapSampleScint\
+            + dimScintImg[2]\
+            + gapScintDet\
+            + self.dimDet[2]/1e4)
 
         self.gapSampleScint = gapSampleScint
         self.gapScintDet = gapScintDet
+        self.gapDetCorrSample = gapDetCorrSample
         
         # Misc.
         self.check_overlap = check_overlap
@@ -113,11 +123,13 @@ class geant4:
         with open(self.G4directory + "/build/run_detector_rank" + str(comm.rank + self.rank_start) + ".mac", "w") as mac:
             mac.write("/system/root_file_name output" + str(comm.rank + self.rank_start) + ".root\n")
         
-            mac.write("/structure/rWorld " + str(np.round(self.dimWorld[0], 6)) + "\n")
-            mac.write("/structure/zWorld " + str(np.round(self.dimWorld[1], 6)) + "\n\n")
+            mac.write("/structure/xWorld " + str(np.round(self.dimWorld[0], 6)) + "\n")
+            mac.write("/structure/yWorld " + str(np.round(self.dimWorld[1], 6)) + "\n")
+            mac.write("/structure/zWorld " + str(np.round(self.dimWorld[2], 6)) + "\n\n")
 
             mac.write("/structure/gapSampleScint " + str(np.round(self.gapSampleScint, 6)) + "\n")
-            mac.write("/structure/gapScintDet " + str(np.round(self.gapScintDet, 6)) + "\n\n")
+            mac.write("/structure/gapScintDet " + str(np.round(self.gapScintDet, 6)) + "\n")
+            mac.write("/structure/gapDetCorrSample " + str(np.round(self.gapDetCorrSample, 6)) + "\n\n")
             
             mac.write("/structure/rScintCorr " + str(np.round(self.dimScintCorr[0], 6)) + "\n")
             mac.write("/structure/zScintCorr " + str(np.round(self.dimScintCorr[1], 6)) + "\n")
@@ -166,6 +178,7 @@ class geant4:
             	+ " 0.0 "\
                 + " " + str(np.round(self.dimWorld[0]*np.cos(source_theta + np.pi/2), 6))\
                 + " " + str(np.round(self.dimWorld[0]*np.sin(source_theta + np.pi/2), 6)) + "\n")
+            #mac.write("/gps/energy 200 keV\n")
             mac.write("/gps/ene/type User\n")
             mac.write("/gps/ene/emspec 0\n")
             mac.write("/gps/hist/type energy\n")
@@ -180,7 +193,7 @@ class geant4:
             os.remove(self.G4directory + "/build/output" + str(comm.rank + self.rank_start) + "_t0.root")
     
         os.chdir(self.G4directory + "/build")
-        time.sleep(comm.size*np.random.rand())
+        #time.sleep(comm.size*np.random.rand())
         proc = subprocess.Popen(["./NS", "run_detector_rank" + str(comm.rank + self.rank_start) + ".mac"])
         
         while True:
@@ -207,15 +220,15 @@ class geant4:
         n_phot_list = np.array(process['Photoelectric'].array())
         n_compt_list = np.array(process['Compton'].array())
 
-        np.savez(directory + '/debug_run_geant4',
-            eventID=eventID,
-            wvl_list=wvl_list,
-            particle_type_list=particle_type_list,
-            fz_list=fz_list,
-            E_inc_list=E_inc_list,
-            n_phot_list=n_phot_list,
-            n_compt_list=n_compt_list,
-        )
+        #np.savez(directory + '/debug_run_geant4',
+        #    eventID=eventID,
+        #    wvl_list=wvl_list,
+        #    particle_type_list=particle_type_list,
+        #    fz_list=fz_list,
+        #    E_inc_list=E_inc_list,
+        #    n_phot_list=n_phot_list,
+        #    n_compt_list=n_compt_list,
+        #)
         
         # Database Quantities
         if os.path.exists(directory + "/data/" + self.identifier + "/geant4_data_" + str(comm.rank + self.rank_start) + ".npz"):
@@ -250,26 +263,24 @@ class geant4:
         
         z_upper = np.max(fz_list)
         z_lower = np.min(fz_list)
+        z_threshold = -(self.dimScintCorr[0]*10 + self.gapScintDet*10 + self.dimDet[2]/1e3)
 
         for i in range(Nruns):
             event_mask = eventID == i
             
             if event_mask.size != 0:
-                particleType_i = particleType[event_mask]
-                z_upper_i = fz_list[event_mask] == z_upper
+                particleType_i = particle_type_list[event_mask]
+                z_upper_i = fz_list[event_mask] > z_threshold
                 
                 if np.any(particleType_i == 'gamma'):
                     ind_gamma = np.argwhere(particleType_i == 'gamma')[:,0]
                 
                     # Detected X-Ray Energy
                     for ig in ind_gamma:
-                        if fz_list[event_mask][ig] == z_upper:
+                        if fz_list[event_mask][ig] > z_threshold:
                             E_X_corr[i] = 1.239841939/wvl_list[event_mask][ig]
-                        elif fz_list[event_mask][ig] == z_lower:
-                            E_X_det[i] = 1.239841939/wvl_list[event_mask][ig]
                         else:
-                            print("fz = " + str(fz_list[event_mask][ig]) + " not z_upper = " + str(z_upper) + " or z_lower = " + str(z_lower), flush=True)
-                            assert False
+                            E_X_det[i] = 1.239841939/wvl_list[event_mask][ig]
 
                 else:
                     E_X_corr[i] = np.nan
@@ -279,10 +290,12 @@ class geant4:
                     mask_opticalphoton = particleType_i == 'opticalphoton'
 
                     # Total number of scintillation photons
-                    n_scint[i] = np.sum(mask_opticalphoton)
+                    n_scint_corr[i] = np.sum(z_upper_i*mask_opticalphoton)
+                    n_scint_det[i] = np.sum((1 - z_upper_i)*mask_opticalphoton)
                 
                 else:
-                    n_scint[i] = 0
+                    n_scint_corr[i] = 0
+                    n_scint_det[i] = 0
                 
         np.savez(directory + "/data/" + self.identifier + "/geant4_data_" + str(comm.rank + self.rank_start),
                  E_inc=E_inc,
@@ -303,7 +316,7 @@ class geant4:
         m = self.theta_bins // size
         r = self.theta_bins % size
         theta_start = rank*m
-        theta_end = (rank + 1)*m + r*(rank == size - 1)
+        theta_end = (rank + 1)*m + r*(rank == (size - 1))
         for nT in range(theta_start, theta_end):
             if verbose:
                 if nT%10 == 0:
@@ -313,12 +326,9 @@ class geant4:
             
             self.make_simulation_macro(Nphot_per_theta, source_theta=self.theta_list[nT], source_type='Point')
             self.run_geant4(Nphot_per_theta, source_theta=self.theta_list[nT])
-        
-        if verbose:
-            print(i+1, flush=True)
 
 if __name__ == '__main__':
-    if rank == 0:
+    if rank == 26:
         verbose = True
     else:
         verbose = False
@@ -333,9 +343,9 @@ if __name__ == '__main__':
 
     simulation = geant4(
         G4directory = "/nfs/scistore08/roquegrp/smin/xray_projects/geant4/G4_compton_correlation",
-        rSource = 50.0, # in cm
+        rSource = 1.0, # in cm
         sampleID = 0, # 0: None, 1:AM, 2:AF, 3:Cylindrical
-        dimSampleVoxel = np.array([2.137,8,0.0])/np.array([400,400,1]), # in cm
+        dimSampleVoxel = np.array([2.137,8,10.0])/np.array([400,400,1]), # in cm
         indSampleVoxel = np.array([[0,253], # 0...253 indexing
                                     [119,189], # 0...222 indexing
                                     [63,64]]), # 1...128 indexing
@@ -349,6 +359,7 @@ if __name__ == '__main__':
         NDetVoxel = np.array([1,1,1]),
         gapSampleScint = 0.001, # in cm
         gapScintDet = 0.001, # in cm
+        gapDetCorrSample = 1.0, # in cm
         check_overlap = 0,
         energy_range = np.array([50,120]), # in keV
         energy_bins = 71,
@@ -363,4 +374,4 @@ if __name__ == '__main__':
         rank_start = 0, #----------------------------------------------------------------- Change
     )
 
-    simulation.collect_simulation_data(Nphot_per_theta=10000)
+    simulation.collect_simulation_data(Nphot_per_theta=100000)

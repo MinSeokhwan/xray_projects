@@ -31,6 +31,11 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
     
     //G4cout << "Particle " << particleType << " | PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << G4endl;
     //std::cerr << "Particle" << particleType << "PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << std::endl;
+    //std::ofstream outFile("/nfs/scistore08/roquegrp/smin/xray_projects/xray_scattering_discrimination/log.txt", std::ios::app);
+    //    if (outFile.is_open()) {
+    //        outFile << "Particle " << particleType << " | PreVol" << volumeNamePre << " | PostVol" << volumeNamePost << G4endl;
+    //        outFile.close();
+    //    }
     
     if (volumeNamePre == "physWorld" && volumeNamePost == "physDetector")
     {
@@ -58,9 +63,7 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
         G4ThreeVector momPhoton = stepPoint->GetMomentum();
     
         G4double wlen = (1.239841939*eV/momPhoton.mag())*1E+03;
-        
-        std::cerr << "Particle " << particleType << " | Wlen " << wlen << std::endl;
-        
+
         man->FillNtupleIColumn(0, 0, evt);
         man->FillNtupleDColumn(0, 1, wlen);
         man->FillNtupleSColumn(0, 2, particleType);
@@ -80,15 +83,18 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
         G4VPhysicalVolume *physVol = touchable->GetVolume();
         G4ThreeVector posDetector = physVol->GetTranslation();
         
-        //G4cout << "x: " << posDetector[0] << " y: " << posDetector[1] << G4endl;
-        std::cerr << "zDet " << posDetector[2] << std::endl;
-        
         man->FillNtupleIColumn(1, 0, evt);
         //man->FillNtupleDColumn(1, 1, posDetector[0]);
         //man->FillNtupleDColumn(1, 2, posDetector[1]);
         man->FillNtupleDColumn(1, 1, posDetector[2]);
         man->AddNtupleRow(1);
     
+        //std::ofstream outFile("/nfs/scistore08/roquegrp/smin/xray_projects/xray_scattering_discrimination/log.txt", std::ios::app);
+        //if (outFile.is_open()) {
+        //    outFile << "Particle " << particleType << " | Wlen " << wlen << " | zDet" << posDetector[2] << std::endl;
+        //    outFile.close();
+        //}
+
         if (particleType != "gamma")
             track->SetTrackStatus(fStopAndKill);
     }
@@ -132,10 +138,13 @@ void NSSteppingAction::UserSteppingAction(const G4Step *step)
             //G4double edep = step->GetTotalEnergyDeposit();
             //fEventAction->AddEdep(edep);
         }
-        
-        // Prevent infinite TIR in cylindrical scintillator
-		if (track->GetCurrentStepNumber() > 1000) {
-			track->SetTrackStatus(fStopAndKill);
-		}
+    }
+
+    // Prevent infinite TIR in cylindrical scintillator
+    if (particleType != "lepton")
+    {
+        if (track->GetCurrentStepNumber() > 10) {
+            track->SetTrackStatus(fStopAndKill);
+        }
     }
 }

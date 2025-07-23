@@ -8,10 +8,12 @@
 NSDetectorConstruction::NSDetectorConstruction()
 {
     // World dimensions
-    rWorld = 50.; //cm
-    zWorld = 10.; //cm
+    xWorld = 10.; //cm
+    yWorld = 50.; //cm
+    zWorld = 50.; //cm
     gapSampleScint = 0.001; //cm
     gapScintDet = 0.001; //cm
+    gapDetCorrSample = 0.001; //cm
 
     // The overlaps between the detectors should be checked each time the geometry is changed
     // This is set to false by default to avoid performing this verification at each run
@@ -50,10 +52,12 @@ NSDetectorConstruction::NSDetectorConstruction()
 
     // Messenger
     fMessenger = new G4GenericMessenger(this, "/structure/", "Structure construction");
-    fMessenger->DeclareProperty("rWorld", rWorld, "Simulation radius");
-    fMessenger->DeclareProperty("zWorld", zWorld, "Simulation height (thickness)");
+    fMessenger->DeclareProperty("xWorld", xWorld, "Simulation x length");
+    fMessenger->DeclareProperty("yWorld", yWorld, "Simulaiton y length");
+    fMessenger->DeclareProperty("zWorld", zWorld, "Simulation z length");
     fMessenger->DeclareProperty("gapSampleScint", gapSampleScint, "Gap between the scintillator and the sample");
     fMessenger->DeclareProperty("gapScintDet", gapScintDet, "Gap between the scintillator and the detector");
+    fMessenger->DeclareProperty("gapDetCorrSample", gapDetCorrSample, "Gap between the correlation detector and the sample");
     
     fMessenger->DeclareProperty("detectorDepth", detectorDepth, "Depth of the detectors");
     fMessenger->DeclareProperty("xDet", xDet, "Detector x length");
@@ -3179,7 +3183,7 @@ void NSDetectorConstruction::DefineMaterials()
 
 void NSDetectorConstruction::ConstructCylindricalPhantom()
 {
-    const G4double zOffset = 0.6*rWorld*cm;
+    const G4double zOffset = rScintCorr*cm + gapScintDet*cm + detectorDepth*um + gapDetCorrSample*cm;
     
     solidSoftTissue = new G4Box("solidSoftTissue", xSample/2*cm, ySample/2*cm, zSample/2*cm);
     logicSoftTissue = new G4LogicalVolume(solidSoftTissue, AMAdiposeTissue, "logicSoftTissue");
@@ -3210,7 +3214,7 @@ void NSDetectorConstruction::ConstructCylindricalPhantom()
 void NSDetectorConstruction::ConstructSample()
 {
     const G4double voxelX = xSample/nSampleX*cm, voxelY = ySample/nSampleY*cm, voxelZ = zSample/nSampleZ*cm;
-    const G4double zOffset = 0.6*rWorld*cm;
+    const G4double zOffset = rScintCorr*cm + gapScintDet*cm + detectorDepth*um + gapDetCorrSample*cm;
     solidSample = new G4Box("solidSample", voxelX/2, voxelY/2, voxelZ/2);
     
     if (sampleID == 1)
@@ -3564,7 +3568,7 @@ void NSDetectorConstruction::ConstructSample()
                     }
                 }
                 logicSample = new G4LogicalVolume(solidSample, sampleMat, "logicSample");
-                physSample = new G4PVPlacement(0, G4ThreeVector(-xSample/2*cm+(i-indSampleX+0.5)*voxelX, -ySample/2*cm+(j-indSampleY+0.5)*voxelY, -zOffset+(k-indSampleZ+0.5)*voxelZ), logicSample, "physSample", logicWorld, false, (i-indSampleX)+(j-indSampleY)*nSampleX+(k-indSampleZ)*nSampleX*nSampleY, checkDetectorsOverlaps);
+                physSample = new G4PVPlacement(0, G4ThreeVector(-xSample/2*cm+(i-indSampleX+0.5)*voxelX, -ySample/2*cm+(j-indSampleY+0.5)*voxelY, -zOffset-zSample/2*cm+(k-indSampleZ+0.5)*voxelZ), logicSample, "physSample", logicWorld, false, (i-indSampleX)+(j-indSampleY)*nSampleX+(k-indSampleZ)*nSampleX*nSampleY, checkDetectorsOverlaps);
                 fSampleVolumes.push_back(logicSample);
             }
         }
@@ -3573,7 +3577,7 @@ void NSDetectorConstruction::ConstructSample()
 
 void NSDetectorConstruction::ConstructScintillators()
 {
-    const G4double zOffset = 0.6*rWorld*cm + zSample*cm + gapSampleScint*cm;
+    const G4double zOffset = rScintCorr*cm + gapScintDet*cm + detectorDepth*um + gapDetCorrSample*cm + zSample*cm + gapSampleScint*cm;
 
     if (materialScintCorr == 1)
         matNameScintCorr = YAGCe;
@@ -3616,7 +3620,7 @@ void NSDetectorConstruction::ConstructScintillators()
 
     solidScintImg = new G4Box("solidScintImg", xScintImg/2*cm, yScintImg/2*cm, zScintImg/2*cm);
     logicScintImg = new G4LogicalVolume(solidScintImg, matNameScintImg, "logicScintImg");
-    G4ThreeVector transScintImg = G4ThreeVector(0., 0., -zOffset+zScintImg/2*cm);
+    G4ThreeVector transScintImg = G4ThreeVector(0., 0., -zOffset-zScintImg/2*cm);
     physScintImg = new G4PVPlacement(0, transScintImg, logicScintImg, "physScintImg", logicWorld, false, 0, checkDetectorsOverlaps);
 
     G4LogicalBorderSurface *interfaceScintImg = new G4LogicalBorderSurface("interfaceScintImg", physWorld, physScintImg, opticalSurfaceWorld);
@@ -3626,7 +3630,8 @@ void NSDetectorConstruction::ConstructSensitiveDetector()
 {
     // Constructing the correlation detector
     const G4double detectorX = xDet/nDetX*um, detectorY = yDet/nDetY*um;
-    const G4double zOffsetCorr = rScintCorr*cm + gapScintDet*cm, zOffsetImg = 0.6*rWorld*cm + zSample*cm + gapSampleScint*cm + zScintImg*cm + gapScintDet*cm;
+    const G4double zOffsetCorr = rScintCorr*cm + gapScintDet*cm;
+    const G4double zOffsetImg = rScintCorr*cm + gapScintDet*cm + detectorDepth*um + gapDetCorrSample*cm + zSample*cm + gapSampleScint*cm + zScintImg*cm + gapScintDet*cm;
     solidDetector = new G4Box("solidDetector", detectorX/2, detectorY/2, detectorDepth/2*um);
     logicDetector = new G4LogicalVolume(solidDetector, worldMat, "logicDetector");
     logicDetector->SetUserLimits(userLimits);
@@ -3649,7 +3654,7 @@ G4VPhysicalVolume *NSDetectorConstruction::Construct()
     DefineMaterials();
     
     navigator = new G4Navigator();
-    solidWorld = new G4Box("solidWorld", zWorld/2*cm, rWorld*cm, rWorld*cm); // define volume boundaries (length inputs should be half the actual length)
+    solidWorld = new G4Box("solidWorld", xWorld/2*cm, yWorld*cm, zWorld*cm); // define volume boundaries (length inputs should be half the actual length)
     logicWorld = new G4LogicalVolume(solidWorld, worldMat, "logicWorld"); // define volume material
     physWorld = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, checkDetectorsOverlaps);
     // parameters: rotation, volume center, logicalVolume, name, mother volume, boolean operations, copy number (ID), checkOverlaps

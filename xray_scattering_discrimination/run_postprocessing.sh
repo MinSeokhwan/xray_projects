@@ -8,7 +8,7 @@
 #SBATCH --output=/nfs/scistore08/roquegrp/smin/xray_projects/xray_scattering_discrimination/slurm/run_postprocessing.log-%j
 #
 #Total number of CPU cores to be used for the MPI job
-#SBATCH --ntasks=10
+#SBATCH --ntasks=1
 #
 #Define the number of hours the job should run. 
 #Maximum runtime is limited to 10 days, ie. 240 hours
@@ -46,4 +46,4 @@ module load openmpi/4.1.6
 #
 #
 #run the respective binary through SLURM's srun
-mpirun -n 10 python /nfs/scistore08/roquegrp/smin/xray_projects/xray_scattering_discrimination/data_postprocessing.py
+mpirun -n 1 python /nfs/scistore08/roquegrp/smin/xray_projects/xray_scattering_discrimination/run_postprocessing.py
